@@ -130,4 +130,39 @@ const jours = (await getCollection('jours')).sort(
       margin-top: 0;
     }
   }
+
+  /* ——— Entrée latérale : les cartes glissent depuis leur côté du tracé avec
+   * une légère rotation (impaires ← gauche, paires → droite). On ne remplace
+   * que le nom d'animation : la timeline/range/fill viennent du `.reveal`
+   * global (effets.css), et prefers-reduced-motion y coupe tout. ——— */
+  @supports (animation-timeline: view()) {
+    .timeline__item.reveal {
+      animation-name: arrivee-gauche;
+    }
+    .timeline__item.reveal:nth-child(even) {
+      animation-name: arrivee-droite;
+    }
+  }
+
+  @keyframes arrivee-gauche {
+    from {
+      opacity: 0;
+      transform: translate(-2.75rem, 1.75rem) rotate(-2.5deg);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes arrivee-droite {
+    from {
+      opacity: 0;
+      transform: translate(2.75rem, 1.75rem) rotate(2.5deg);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 </style>

@@ -23,16 +23,23 @@ const jour1 = jours[0];
   <main id="contenu">
     {/* ——— Hero d'accueil ——— */}
     <header class="hero-accueil">
-      <div class="hero-accueil__fond" aria-hidden="true">
-        <Image
-          class="hero-accueil__img"
-          src={jour1.data.cover}
-          alt=""
-          widths={[720, 1280, 1920]}
-          sizes="100vw"
-          loading="eager"
-          fetchpriority="high"
-        />
+      {/* Constellation des covers : les 8 jours flottent autour du titre,
+          chacun à sa profondeur (taille/inclinaison/vitesse de dérive au scroll). */}
+      <div class="montage" aria-hidden="true">
+        {
+          jours.map((jour, i) => (
+            <div class={`montage__carte montage__carte--${i + 1}`}>
+              <Image
+                class="montage__img"
+                src={jour.data.cover}
+                alt=""
+                widths={[360, 540]}
+                sizes="(min-width: 52rem) 14rem, 7rem"
+                loading="eager"
+              />
+            </div>
+          ))
+        }
       </div>
 
       <div class="hero-accueil__contenu">
@@ -85,21 +92,109 @@ const jour1 = jours[0];
     isolation: isolate;
   }
 
-  .hero-accueil__fond {
+  /* ——— Constellation des covers ——— */
+  .montage {
     position: absolute;
     inset: 0;
     z-index: -2;
   }
 
-  .hero-accueil__img {
+  .montage__carte {
+    position: absolute;
+    width: var(--taille, clamp(7.5rem, 12vw, 11rem));
+    aspect-ratio: 3 / 2;
+    border-radius: var(--rayon, 12px);
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    box-shadow: 0 18px 40px rgb(0 0 0 / 0.45);
+    opacity: 0.62;
+    /* Propriété de transform indépendante : la rotation reste posée pendant
+     * que la dérive au scroll anime `translate` (pas d'écrasement mutuel). */
+    rotate: var(--rot, 0deg);
+  }
+
+  .montage__img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.35;
-    filter: saturate(1.1);
+    filter: saturate(1.05) brightness(0.9);
   }
 
-  /* Voile dégradé pour la lisibilité + ancrage dark. */
+  /* Position, inclinaison, profondeur (taille) et vitesse de dérive par carte. */
+  .montage__carte--1 { top: 9%;    left: 5%;   --rot: -8deg; --taille: clamp(9rem, 15vw, 14rem);  --derive: -140px; }
+  .montage__carte--2 { top: 34%;   left: -2%;  --rot: 5deg;  --derive: -60px; }
+  .montage__carte--3 { top: 60%;   left: 7%;   --rot: -4deg; --derive: -100px; }
+  .montage__carte--4 { bottom: 3%; left: 24%;  --rot: 7deg;  --taille: clamp(6rem, 10vw, 9rem);   --derive: -40px; }
+  .montage__carte--5 { top: 11%;   right: 6%;  --rot: 6deg;  --derive: -120px; }
+  .montage__carte--6 { top: 38%;   right: -2%; --rot: -6deg; --taille: clamp(9rem, 15vw, 14rem);  --derive: -70px; }
+  .montage__carte--7 { top: 64%;   right: 8%;  --rot: 3deg;  --derive: -90px; }
+  .montage__carte--8 { bottom: 5%; right: 25%; --rot: -7deg; --taille: clamp(6rem, 10vw, 9rem);   --derive: -50px; }
+
+  /* Mobile : moins de cartes, plus petites, calées vers les bords. */
+  @media (max-width: 51.99rem) {
+    .montage__carte {
+      --taille: clamp(5rem, 24vw, 7.5rem) !important;
+      opacity: 0.5;
+    }
+    .montage__carte--4,
+    .montage__carte--8 {
+      display: none;
+    }
+    .montage__carte--1 { top: 6%;  left: -4%; }
+    .montage__carte--3 { top: 72%; left: -3%; }
+    .montage__carte--5 { top: 7%;  right: -4%; }
+    .montage__carte--7 { top: 70%; right: -3%; }
+  }
+
+  /* Dérive parallax : chaque carte remonte à sa vitesse pendant qu'on quitte
+   * le hero (100 premiers vh). CSS pur, `translate` seul est animé. */
+  @supports (animation-timeline: view()) {
+    .montage__carte {
+      animation: montage-derive linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 100vh;
+    }
+  }
+
+  @keyframes montage-derive {
+    to {
+      translate: 0 var(--derive, -80px);
+    }
+  }
+
+  /* Flottement ambiant très lent (indépendant du scroll), sur l'image
+   * intérieure pour ne pas entrer en conflit avec la dérive. */
+  @media (prefers-reduced-motion: no-preference) {
+    .montage__img {
+      animation: montage-flotte var(--flotte, 9s) ease-in-out infinite alternate;
+    }
+    .montage__carte--2 .montage__img { --flotte: 11s; }
+    .montage__carte--3 .montage__img { --flotte: 8s; }
+    .montage__carte--5 .montage__img { --flotte: 10s; }
+    .montage__carte--7 .montage__img { --flotte: 12s; }
+  }
+
+  @keyframes montage-flotte {
+    from {
+      translate: 0 -4px;
+      scale: 1.06;
+    }
+    to {
+      translate: 0 4px;
+      scale: 1.06;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .montage__carte,
+    .montage__img {
+      animation: none !important;
+      translate: none !important;
+    }
+  }
+
+  /* Voile : halo sombre derrière le titre (lisibilité au centre, cartes
+   * visibles sur les bords) + fondu vers la section suivante. */
   .hero-accueil::before {
     content: '';
     position: absolute;
@@ -107,17 +202,12 @@ const jour1 = jours[0];
     z-index: -1;
     background:
       radial-gradient(
-        120% 80% at 50% 12%,
-        transparent 0%,
-        color-mix(in srgb, var(--bg) 55%, transparent) 55%,
-        var(--bg) 100%
+        62% 52% at 50% 42%,
+        color-mix(in srgb, var(--bg) 88%, transparent) 0%,
+        color-mix(in srgb, var(--bg) 55%, transparent) 58%,
+        transparent 82%
       ),
-      linear-gradient(
-        to bottom,
-        color-mix(in srgb, var(--bg) 60%, transparent) 0%,
-        color-mix(in srgb, var(--bg) 30%, transparent) 40%,
-        var(--bg) 100%
-      );
+      linear-gradient(to bottom, transparent 64%, var(--bg) 97%);
   }
 
   /* Halo accent discret derrière le titre. */
@@ -241,6 +331,43 @@ const jour1 = jours[0];
   .periple {
     position: relative;
     overflow: hidden;
+    /* Contexte d'empilement : le voile ::before (z-index -1) reste au-dessus
+     * du fond opaque du body. */
+    isolation: isolate;
+  }
+
+  /* Voyage chromatique : en descendant la timeline, le fond se teinte
+   * successivement de l'accent de chaque jour (rouge route → ambre sunset).
+   * Piloté par la progression de la section dans le viewport, 0 Ko de JS. */
+  @supports (animation-timeline: view()) {
+    .periple::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-color: color-mix(in srgb, #e82127 8%, transparent);
+      animation: periple-voyage linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+  }
+
+  @keyframes periple-voyage {
+    0%   { background-color: color-mix(in srgb, #e82127 8%, transparent); }
+    14%  { background-color: color-mix(in srgb, #fb923c 8%, transparent); }
+    28%  { background-color: color-mix(in srgb, #22d3ee 8%, transparent); }
+    42%  { background-color: color-mix(in srgb, #8b5cf6 9%, transparent); }
+    56%  { background-color: color-mix(in srgb, #ec4899 8%, transparent); }
+    70%  { background-color: color-mix(in srgb, #34d399 8%, transparent); }
+    84%  { background-color: color-mix(in srgb, #22c55e 8%, transparent); }
+    100% { background-color: color-mix(in srgb, #f59e0b 9%, transparent); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .periple::before {
+      animation: none !important;
+    }
   }
 
   .periple__intro {
