@@ -13,6 +13,42 @@ const jours = (await getCollection('jours')).sort(
   (a, b) => a.data.ordre - b.data.ordre,
 );
 const jour1 = jours[0];
+
+/*
+ * Images du rideau du hero : les 8 covers des jours EN PRIORITÉ, complétées
+ * par d'autres photos des pages (galeries) choisies pseudo-aléatoirement —
+ * aucune image n'apparaît deux fois dans le rideau.
+ */
+import type { ImageMetadata } from 'astro:assets';
+
+const tousMedias = import.meta.glob<ImageMetadata>(
+  '/src/assets/medias/**/*.{jpg,jpeg,png,webp,JPG,JPEG}',
+  { eager: true, import: 'default' },
+);
+
+const covers = jours.map((j) => j.data.cover);
+const coverSrcs = new Set(covers.map((c) => c.src));
+
+// Mélange pseudo-aléatoire mais DÉTERMINISTE (hash du chemin) : le rendu
+// varie quand les médias changent, pas à chaque build.
+const hashChemin = (s: string) => {
+  let h = 0;
+  for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return h;
+};
+
+const autresPhotos = Object.entries(tousMedias)
+  .filter(([chemin, img]) => !/\/ambiance-/.test(chemin) && !coverSrcs.has(img.src))
+  .sort(([a], [b]) => hashChemin(a) - hashChemin(b))
+  .map(([, img]) => img);
+
+// 4 colonnes × 4 visuels = 16 images uniques : covers d'abord, le reste en
+// complément. Répartition en tourniquet pour disperser les covers partout.
+const NB_COLONNES = 4;
+const PAR_COLONNE = 4;
+const rideauImages = [...covers, ...autresPhotos].slice(0, NB_COLONNES * PAR_COLONNE);
+const rideauColonnes: ImageMetadata[][] = Array.from({ length: NB_COLONNES }, () => []);
+rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
 ---
 
 <BaseLayout
@@ -23,24 +59,21 @@ const jour1 = jours[0];
   <main id="contenu">
     {/* ——— Hero d'accueil ——— */}
     <header class="hero-accueil">
-      {/* Rideau de photos : colonnes verticales des covers qui défilent
-          lentement (sens alterné), légèrement inclinées, estompées derrière
-          le titre. Chaque colonne est dupliquée pour une boucle sans couture. */}
+      {/* Rideau de photos : colonnes verticales qui défilent lentement (sens
+          alterné), légèrement inclinées, estompées derrière le titre. 16
+          images UNIQUES : les covers des 8 jours en priorité + photos des
+          galeries en complément. Seule la duplication mécanique de chaque
+          colonne (nécessaire à la boucle sans couture) répète un visuel. */}
       <div class="rideau" aria-hidden="true">
         {
-          [
-            [0, 3, 6, 1],
-            [2, 5, 0, 7],
-            [4, 7, 2, 5],
-            [6, 1, 4, 3],
-          ].map((ordre, c) => (
+          rideauColonnes.map((colonne, c) => (
             <div class={`rideau__colonne rideau__colonne--${c + 1}`}>
               <div class="rideau__defile">
-                {[...ordre, ...ordre].map((idx) => (
+                {[...colonne, ...colonne].map((img) => (
                   <div class="rideau__carte">
                     <Image
                       class="rideau__img"
-                      src={jours[idx].data.cover}
+                      src={img}
                       alt=""
                       widths={[360, 540]}
                       sizes="(min-width: 52rem) 16rem, 34vw"
