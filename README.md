@@ -178,6 +178,9 @@ Sur un asset fingerprinté (`curl -I http://localhost:8080/_astro/…`), attende
 
 > Le reste de la CSP (avec les hashes des scripts/styles) est émis par **Astro en `<meta>`** dans le HTML, pas par nginx.
 
+> **Machine derrière un proxy d'entreprise (interception TLS)** : `npm ci` et le téléchargement des polices échouent dans le conteneur avec `SELF_SIGNED_CERT_IN_CHAIN` (le conteneur ne connaît pas le certificat racine de l'entreprise). C'est un problème local uniquement — sur le serveur Coolify le build passe. Pour tester le runtime nginx malgré tout : `npm run build` sur l'hôte puis
+> `docker run --rm -p 8080:80 -v "$PWD/nginx.conf:/etc/nginx/conf.d/default.conf:ro" -v "$PWD/dist:/usr/share/nginx/html:ro" nginx:1.29-alpine`
+
 ---
 
 ## Déploiement Coolify

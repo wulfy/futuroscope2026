@@ -415,3 +415,27 @@ body.ambiance-sunset::after {
     transform: none !important;
   }
 }
+
+/* ============================================================
+ * Accent par ambiance.
+ * Remplace les attributs style="--accent: …" (bloqués par la CSP
+ * à hashes : les hashes couvrent les <style>, pas les attributs).
+ * `body.ambiance-X` teinte toute la page jour ; `.accent-X` teinte
+ * un composant isolé (cartes de la timeline sur l'accueil).
+ * ============================================================ */
+body.ambiance-route,
+.accent-route { --accent: #e82127; }
+body.ambiance-sens,
+.accent-sens { --accent: #fb923c; }
+body.ambiance-futur,
+.accent-futur { --accent: #22d3ee; }
+body.ambiance-space-aqua,
+.accent-space-aqua { --accent: #8b5cf6; }
+body.ambiance-nocturne,
+.accent-nocturne { --accent: #ec4899; }
+body.ambiance-spa,
+.accent-spa { --accent: #34d399; }
+body.ambiance-jungle,
+.accent-jungle { --accent: #22c55e; }
+body.ambiance-sunset,
+.accent-sunset { --accent: #f59e0b; }

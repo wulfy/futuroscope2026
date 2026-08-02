@@ -6,9 +6,12 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 
-# Dépendances d'abord (cache Docker efficace tant que package*.json ne change pas)
+# Dépendances d'abord (cache Docker efficace tant que package*.json ne change pas).
+# --omit=dev : les devDependencies (ffmpeg-static, typescript, @astrojs/check) ne
+# servent pas au build de prod — ffmpeg-static télécharge un binaire depuis GitHub,
+# autant l'éviter ici.
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --omit=dev --no-audit --no-fund
 
 # Sources + build
 COPY . .

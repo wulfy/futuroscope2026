@@ -17,10 +17,10 @@ const jours = (await getCollection('jours')).sort(
 
 <ol class="timeline">
   {
-    jours.map((jour, i) => (
+    // Accent via classe accent-<ambiance> (les attributs style sont bloqués par la CSP à hashes).
+    jours.map((jour) => (
       <li
-        class="timeline__item reveal"
-        style={`--i-accent: ${jour.data.accent ?? 'var(--accent)'}; --reveal-delai: ${i * 80}ms;`}
+        class={`timeline__item reveal${jour.data.ambiance ? ` accent-${jour.data.ambiance}` : ''}`}
       >
         <TimelineCard entry={jour} />
       </li>
@@ -57,8 +57,8 @@ const jours = (await getCollection('jours')).sort(
     width: 2.75rem;
     background: linear-gradient(
       to left,
-      var(--i-accent),
-      color-mix(in srgb, var(--i-accent) 10%, transparent)
+      var(--accent),
+      color-mix(in srgb, var(--accent) 10%, transparent)
     );
   }
 
@@ -71,10 +71,10 @@ const jours = (await getCollection('jours')).sort(
     width: 0.9rem;
     height: 0.9rem;
     border-radius: var(--rayon-plein);
-    background: var(--i-accent);
+    background: var(--accent);
     box-shadow:
       0 0 0 4px var(--bg),
-      0 0 12px color-mix(in srgb, var(--i-accent) 65%, transparent);
+      0 0 12px color-mix(in srgb, var(--accent) 65%, transparent);
   }
 
   /* — Desktop : alternance de part et d'autre du tracé central — */
@@ -99,8 +99,8 @@ const jours = (await getCollection('jours')).sort(
       width: 3.25rem;
       background: linear-gradient(
         to right,
-        var(--i-accent),
-        color-mix(in srgb, var(--i-accent) 10%, transparent)
+        var(--accent),
+        color-mix(in srgb, var(--accent) 10%, transparent)
       );
     }
     .timeline__item:nth-child(odd)::after {

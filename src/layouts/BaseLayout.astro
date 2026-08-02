@@ -8,8 +8,9 @@
  *  - title (requis)        → <title> + og:title
  *  - description (requis)  → meta description + og:description
  *  - ogImage? (ImageMetadata) → image partagée (optimisée en 1200px, URL absolue)
- *  - bodyClass? (string)   → classe posée sur <body> (ex. "ambiance-futur")
- *  - accent? (string)      → injectée en style="--accent: …" sur <body>
+ *  - bodyClass? (string)   → classe posée sur <body> (ex. "ambiance-futur") ;
+ *    l'accent de la page découle de cette classe (cf. ambiances.css) — pas
+ *    d'attribut style : la CSP à hashes ne couvre pas les styles inline.
  */
 import { Font, getImage } from 'astro:assets';
 import Footer from '../components/Footer.astro';
@@ -24,10 +25,9 @@ interface Props {
   description: string;
   ogImage?: ImageMetadata;
   bodyClass?: string;
-  accent?: string;
 }
 
-const { title, description, ogImage, bodyClass, accent } = Astro.props;
+const { title, description, ogImage, bodyClass } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 
@@ -74,7 +74,7 @@ const titreComplet = title === siteNom ? title : `${title} · ${siteNom}`;
     {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
   </head>
 
-  <body class={bodyClass} style={accent ? `--accent: ${accent};` : undefined}>
+  <body class={bodyClass}>
     <a class="lien-skip" href="#contenu">Aller au contenu</a>
     <slot />
     <Footer />

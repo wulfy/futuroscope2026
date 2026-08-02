@@ -45,6 +45,16 @@ export default defineConfig({
   // On ajoute ici les directives pour nos ressources : images (self + data: pour les SVG
   // inline éventuels), médias (vidéos self), polices auto-hébergées (self).
   // `frame-ancestors` est ignorée en <meta> mais reste portée par nginx.
+  // Le minifieur CSS par défaut (lightningcss) fusionne `animation-timeline` dans le
+  // shorthand `animation`, ce qui rend la déclaration invalide et casse toutes les
+  // scroll-driven animations (éléments .reveal bloqués invisibles). esbuild ne
+  // fusionne pas les propriétés.
+  vite: {
+    build: {
+      cssMinify: 'esbuild',
+    },
+  },
+
   security: {
     csp: {
       directives: [
@@ -56,7 +66,8 @@ export default defineConfig({
         "base-uri 'self'",
         "form-action 'self'",
         "object-src 'none'",
-        "frame-ancestors 'none'",
+        // frame-ancestors : uniquement côté nginx — la directive est ignorée en
+        // <meta> et ne génère qu'un warning console si on l'émet ici.
       ],
     },
   },

@@ -14,8 +14,6 @@ interface Props {
 const { entry } = Astro.props;
 const { data } = entry;
 
-const accent = data.accent ?? 'var(--accent)';
-
 // Date lisible en français : « samedi 25 juillet ».
 const dateLisible = new Intl.DateTimeFormat('fr-FR', {
   weekday: 'long',
@@ -25,11 +23,9 @@ const dateLisible = new Intl.DateTimeFormat('fr-FR', {
 const dateIso = data.date.toISOString().slice(0, 10);
 ---
 
-<a
-  class="carte-jour"
-  href={`/jours/${entry.id}/`}
-  style={`--carte-accent: ${accent};`}
->
+{/* L'accent est hérité du parent (classe accent-<ambiance> posée par Timeline) —
+    pas d'attribut style, incompatible avec la CSP à hashes. */}
+<a class="carte-jour" href={`/jours/${entry.id}/`}>
   <div class="carte-jour__media">
     <Image
       class="carte-jour__img"
@@ -58,7 +54,6 @@ const dateIso = data.date.toISOString().slice(0, 10);
 
 <style>
   .carte-jour {
-    --accent: var(--carte-accent);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -75,12 +70,12 @@ const dateIso = data.date.toISOString().slice(0, 10);
   .carte-jour:hover,
   .carte-jour:focus-visible {
     transform: translateY(-6px);
-    border-color: var(--carte-accent);
+    border-color: var(--accent);
     box-shadow:
       var(--ombre-lg),
-      0 0 0 1px var(--carte-accent),
+      0 0 0 1px var(--accent),
       0 18px 48px
-        color-mix(in srgb, var(--carte-accent) 28%, transparent);
+        color-mix(in srgb, var(--accent) 28%, transparent);
   }
 
   .carte-jour:focus-visible {
@@ -148,14 +143,14 @@ const dateIso = data.date.toISOString().slice(0, 10);
     border-radius: var(--rayon-plein);
     background: radial-gradient(
       circle at 30% 25%,
-      color-mix(in srgb, var(--carte-accent) 55%, var(--bg-carte)),
+      color-mix(in srgb, var(--accent) 55%, var(--bg-carte)),
       var(--bg-carte)
     );
-    border: 1.5px solid var(--carte-accent);
+    border: 1.5px solid var(--accent);
     box-shadow:
       var(--ombre-md),
       0 0 20px
-        color-mix(in srgb, var(--carte-accent) 40%, transparent);
+        color-mix(in srgb, var(--accent) 40%, transparent);
     transition: transform var(--transition);
   }
 
@@ -177,7 +172,9 @@ const dateIso = data.date.toISOString().slice(0, 10);
     font-weight: 600;
     letter-spacing: 0.03em;
     text-transform: capitalize;
-    color: color-mix(in srgb, var(--carte-accent) 82%, var(--texte));
+    /* 60/40 vers le texte clair : garde la teinte de l'accent tout en restant
+     * ≥ 4.5:1 même avec l'accent le plus sombre (rouge route). */
+    color: color-mix(in srgb, var(--accent) 60%, var(--texte));
   }
 
   .carte-jour__titre {

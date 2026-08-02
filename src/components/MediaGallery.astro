@@ -82,7 +82,7 @@ const modif = (i: number): string => {
       <ul class="galerie">
         {items.map((item, i) =>
           item.kind === 'photo' ? (
-            <li class={`galerie__item reveal${modif(i)}`} style={`--reveal-delai: ${(i % 8) * 60}ms`}>
+            <li class={`galerie__item reveal${modif(i)}`}>
               <a
                 class="galerie__lien"
                 href={grandes[i]!.src}
@@ -102,7 +102,7 @@ const modif = (i: number): string => {
               </a>
             </li>
           ) : (
-            <li class={`galerie__item galerie__item--video reveal${modif(i)}`} style={`--reveal-delai: ${(i % 8) * 60}ms`}>
+            <li class={`galerie__item galerie__item--video reveal${modif(i)}`}>
               <video class="galerie__video" controls playsinline preload="metadata">
                 <source src={item.url} />
               </video>

@@ -11,7 +11,7 @@
   --bg-carte: #161c33;       /* cartes / panneaux */
   --texte: #e8eaf2;
   --texte-doux: #a8afc8;     /* texte secondaire, légendes */
-  --texte-tenu: #6b7291;     /* méta discrète */
+  --texte-tenu: #949cc0;     /* méta discrète (≥ 4.5:1 sur les fonds de carte) */
   --bordure: #232a45;
   --bordure-douce: rgba(232, 234, 242, 0.08);
 
