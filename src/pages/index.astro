@@ -101,28 +101,28 @@ const jour1 = jours[0];
 
             <svg
               class="carte__svg"
-              viewBox="0 0 100 161.6"
+              viewBox="0 0 100 47.2"
               preserveAspectRatio="none"
               fill="none"
             >
               {/* Le parcours est découpé en 8 segments, chacun dessiné par la
-                  view-timeline de SON jour : le trait avance étape par étape
-                  (Lyon → J1 → Poitiers → Futuroscope → … → Vallée des Singes
-                  → retour vers Lyon), en phase avec la lecture. */}
-              <path class="carte__trace carte__seg--1" d="M 100 47 C 91 47.5 80 48.5 73.6 51.1" pathLength="1" />
-              <path class="carte__trace carte__seg--2" d="M 73.6 51.1 C 63 55.5 48.5 46.5 41.5 41.7" pathLength="1" />
-              <path class="carte__trace carte__seg--3" d="M 41.5 41.7 C 39.8 34.5 40.6 26.8 42.7 22.3" pathLength="1" />
-              <path class="carte__trace carte__seg--4" d="M 42.7 22.3 C 44.3 18.6 46.9 16.7 50.1 17.8" pathLength="1" />
-              <path class="carte__trace carte__seg--5" d="M 50.1 17.8 C 53.2 19.3 55.3 23.6 53.6 27.3" pathLength="1" />
-              <path class="carte__trace carte__seg--6" d="M 53.6 27.3 C 52.4 29.7 50.4 29.4 48.1 28.3" pathLength="1" />
-              <path class="carte__trace carte__seg--7" d="M 48.1 28.3 C 39 44 37.6 95 38.3 147.1" pathLength="1" />
-              <path class="carte__trace carte__seg--8 carte__trace--retour" d="M 38.3 147.1 C 53 152.5 68 143.5 81.4 134.8 C 88.5 130.2 95 129 100 129.5" pathLength="1" />
+                  view-timeline de SON jour : Lyon → halte de recharge (J1) →
+                  Poitiers → Futuroscope → … → Vallée des Singes → retour à
+                  Lyon, en phase avec la lecture. */}
+              <path class="carte__trace carte__seg--1" d="M 95.7 35.5 C 88 32 70 30 61.4 33" pathLength="1" />
+              <path class="carte__trace carte__seg--2" d="M 61.4 33 C 48 30 22 22 6.7 12.1" pathLength="1" />
+              <path class="carte__trace carte__seg--3" d="M 6.7 12.1 C 6.4 11 6.6 10.2 7.3 9.6" pathLength="1" />
+              <path class="carte__trace carte__seg--4" d="M 7.3 9.6 C 9 7.2 11 6 13 5.7" pathLength="1" />
+              <path class="carte__trace carte__seg--5" d="M 13 5.7 C 15.5 6.4 17 7.6 17 9.4" pathLength="1" />
+              <path class="carte__trace carte__seg--6" d="M 17 9.4 C 16.7 11.3 15.7 12.6 14 13.2" pathLength="1" />
+              <path class="carte__trace carte__seg--7" d="M 14 13.2 C 11 17 7.5 22 6.3 26.8" pathLength="1" />
+              <path class="carte__trace carte__seg--8 carte__trace--retour" d="M 6.3 26.8 C 25 38 55 44 77.2 39.6 C 85 38 92 36.5 95.7 35.8" pathLength="1" />
             </svg>
 
+            <span class="carte__ville carte__ville--lyon">Lyon</span>
             <span class="carte__ville carte__ville--poitiers">Poitiers</span>
-            <span class="carte__ville carte__ville--chasseneuil">Chasseneuil</span>
             <span class="carte__ville carte__ville--romagne">Romagne</span>
-            <span class="carte__ville carte__ville--lyon">vers Lyon ↘</span>
+            <span class="carte__ville carte__ville--clermont">Clermont-Fd</span>
             <span class="carte__attribution">© OpenStreetMap</span>
 
             {
@@ -476,7 +476,10 @@ const jour1 = jours[0];
   /* ————————— Voyage : carte sticky + jours ————————— */
   .voyage {
     display: grid;
-    grid-template-columns: minmax(17rem, 26rem) 1fr;
+    /* Carte paysage (Lyon↔Poitiers) : colonne large, élargie au-delà du
+     * container standard pour la lisibilité. */
+    grid-template-columns: minmax(24rem, 1.35fr) 1fr;
+    max-width: min(96rem, 100%);
     gap: clamp(1.5rem, 4vw, 4rem);
     /* PAS d'align-items: start — la colonne de la carte doit s'étirer sur
      * toute la hauteur de la rangée pour donner sa course au sticky. */
@@ -492,13 +495,14 @@ const jour1 = jours[0];
     position: relative;
   }
 
-  /* Dimensionné au ratio exact de l'image OSM (1000×1616) : les positions en
-   * % des marqueurs correspondent ainsi précisément aux lieux réels. */
+  /* Dimensionné au ratio exact de l'image OSM (1500×708, paysage) : les
+   * positions en % des marqueurs correspondent précisément aux lieux réels. */
   .carte {
     position: sticky;
-    top: 3vh;
-    width: min(100%, calc(94vh / 1.616));
-    aspect-ratio: 1000 / 1616;
+    /* Carte basse (paysage) : calée vers le tiers haut du viewport. */
+    top: 16vh;
+    width: 100%;
+    aspect-ratio: 1500 / 708;
     margin-inline: auto;
     border-radius: var(--rayon-carte, 20px);
     border: 1px solid rgb(255 255 255 / 0.08);
@@ -577,10 +581,10 @@ const jour1 = jours[0];
     color: var(--texte-doux);
   }
 
-  .carte__ville--poitiers { left: 27%; top: 30.5%; }
-  .carte__ville--chasseneuil { left: 45.7%; top: 6.8%; }
-  .carte__ville--romagne { left: 50%; top: 94.5%; }
-  .carte__ville--lyon { left: 82%; top: 90%; font-size: 0.62rem; }
+  .carte__ville--lyon { left: 95.8%; top: 82%; }
+  .carte__ville--poitiers { left: 6.7%; top: 33%; }
+  .carte__ville--romagne { left: 14.9%; top: 62%; }
+  .carte__ville--clermont { left: 61.2%; top: 79%; font-size: 0.62rem; }
 
   /* ——— Marqueurs d'étape sur la carte ——— */
   .marqueur {
@@ -615,15 +619,17 @@ const jour1 = jours[0];
     border-radius: 99px;
   }
 
-  /* Positions géographiques réelles (projection Mercator → % de la bbox). */
-  .marqueur--1 { left: 73.6%; top: 31.6%; } /* arrivée par l'A10 */
-  .marqueur--2 { left: 41.5%; top: 25.8%; } /* Poitiers / Sensas */
-  .marqueur--3 { left: 42.7%; top: 13.8%; } /* Futuroscope */
-  .marqueur--4 { left: 50.1%; top: 11%;   } /* Futuroscope / Aquascope */
-  .marqueur--5 { left: 53.6%; top: 16.9%; } /* Futuroscope dernier jour */
-  .marqueur--6 { left: 48.1%; top: 17.5%; } /* Clos de la Ribaudière */
-  .marqueur--7 { left: 38.3%; top: 91%;   } /* Vallée des Singes, Romagne */
-  .marqueur--8 { left: 81.4%; top: 83.4%; } /* départ vers Lyon */
+  /* Positions géographiques réelles (projection Mercator → % de la bbox).
+   * J4-J6 : le groupe Futuroscope/Chasseneuil est trop serré à cette échelle,
+   * ils sont disposés en éventail autour du cluster (positions de rappel). */
+  .marqueur--1 { left: 61.4%; top: 70%;   } /* halte de recharge, A71 */
+  .marqueur--2 { left: 6.7%;  top: 25.7%; } /* Poitiers / Sensas */
+  .marqueur--3 { left: 7.3%;  top: 20.4%; } /* Futuroscope */
+  .marqueur--4 { left: 13%;   top: 12%;   } /* Futuroscope / Aquascope */
+  .marqueur--5 { left: 17%;   top: 20%;   } /* Futuroscope dernier jour */
+  .marqueur--6 { left: 14%;   top: 28%;   } /* Clos de la Ribaudière */
+  .marqueur--7 { left: 6.3%;  top: 56.7%; } /* Vallée des Singes, Romagne */
+  .marqueur--8 { left: 77.2%; top: 83.8%; } /* retour, A89 */
 
   /* ——— Colonne des jours ——— */
   .voyage__jours {
@@ -739,7 +745,7 @@ const jour1 = jours[0];
     }
     .carte {
       top: 0.5rem;
-      width: min(72vw, calc(46svh / 1.616));
+      width: 100%;
     }
     .marqueur__pastille {
       width: 1.7rem;

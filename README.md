@@ -158,7 +158,7 @@ Les covers des 8 jours sont des photos libres de Wikimedia Commons, redimensionn
 | Jour | Fichier | Auteur | Licence | Source |
 |---|---|---|---|---|
 | 1 | `01-tesla-depart.jpg` | Noah Wulf | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Black_Tesla_Model_3_on_N_Jones_Blvd.jpg) |
-| 2 | `03-sensas-entree.jpg` | HistoryOfPlace | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Raised_relief_of_hands_reading_Braille.jpg) |
+| 2 | `03-sensas-entree.jpg` | — | Photo fournie (Google Maps, droits réservés — usage personnel) | Sensas Poitiers |
 | 3 | `03-futuroscope-entree.jpg` | Chin844 | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Vue_Kin%C3%A9max_et_360%C2%B0_14-03-2020.jpg) |
 | 4 | `04-aquascope-bassin.jpg` | Jordiferrer | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Futuroscope_(France_2014)_05_Danse_avec_les_Robots.JPG) |
 | 5 | `05-spectacle-nocturne.jpg` | Jordiferrer | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Futuroscope_(France_2014)_07_night_show.JPG) |
@@ -168,7 +168,7 @@ Les covers des 8 jours sont des photos libres de Wikimedia Commons, redimensionn
 
 La carte de l'accueil (`src/assets/carte/poitiers-osm.jpg`) est un assemblage de tuiles **© OpenStreetMap contributors** (licence ODbL) — l'attribution affichée sur la carte doit rester.
 
-Notes : jour 2 = relief de mains lisant du braille (toucher/sens, pas de photo libre de Sensas Poitiers) ; jour 4 = Danse avec les Robots (pas d'Aquascope libre) ; jour 6 = spa générique (pas de photo libre du Clos de la Ribaudière).
+Notes : jour 2 = intérieur de Sensas Poitiers (photo Google Maps fournie, à remplacer par la vôtre) ; jour 4 = Danse avec les Robots (pas d'Aquascope libre) ; jour 6 = spa générique (pas de photo libre du Clos de la Ribaudière).
 
 ---
 
