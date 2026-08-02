@@ -151,6 +151,25 @@ export default defineConfig({
 
 ---
 
+## Crédits photos (covers actuelles)
+
+Les covers des 8 jours sont des photos libres de Wikimedia Commons, redimensionnées en 1920×1280. **L'attribution ci-dessous doit rester accessible tant que ces photos sont en ligne** (exigence CC BY / CC BY-SA) — si vous les remplacez par vos propres photos, supprimez simplement cette section.
+
+| Jour | Fichier | Auteur | Licence | Source |
+|---|---|---|---|---|
+| 1 | `01-tesla-depart.jpg` | Noah Wulf | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Black_Tesla_Model_3_on_N_Jones_Blvd.jpg) |
+| 2 | `03-sensas-entree.jpg` | Benjamin Smith | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Poitiers_-_%C3%89glise_Notre-Dame_la_Grande_-_06.jpg) |
+| 3 | `03-futuroscope-entree.jpg` | Chin844 | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Vue_Kin%C3%A9max_et_360%C2%B0_14-03-2020.jpg) |
+| 4 | `04-aquascope-bassin.jpg` | Jordiferrer | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Futuroscope_(France_2014)_05_Danse_avec_les_Robots.JPG) |
+| 5 | `05-spectacle-nocturne.jpg` | Jordiferrer | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Futuroscope_(France_2014)_07_night_show.JPG) |
+| 6 | `01-clos-facade.jpg` | Basile Morin | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:Indoor_pool_and_showers_of_the_spa_at_Amantaka_luxury_Resort_%26_Hotel_in_Luang_Prabang_Laos.jpg) |
+| 7 | `02-gibbons.jpg` | Shonagon | Domaine public | [Commons](https://commons.wikimedia.org/wiki/File:Bonobo_Vall%C3%A9e_des_Singes.jpg) |
+| 8 | `04-coucher-soleil.jpg` | Gaétan Veillette | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:A50_(Qu%C3%A9bec)-Vue_vers_l%27ouest_du_coucher_de_soleil_sur_l%27autoroute-2022-11-24.jpg) |
+
+Notes : jour 2 = Notre-Dame-la-Grande (Poitiers) faute de photo libre de Sensas ; jour 4 = Danse avec les Robots (pas d'Aquascope libre) ; jour 6 = spa générique (pas de photo libre du Clos de la Ribaudière).
+
+---
+
 ## Test Docker local
 
 Le daemon Docker doit tourner. Depuis la racine du projet :
