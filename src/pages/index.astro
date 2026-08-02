@@ -105,18 +105,18 @@ const jour1 = jours[0];
               preserveAspectRatio="none"
               fill="none"
             >
-              {/* Aller (trait plein) puis retour (pointillé), dessinés au
-                  scroll — tracé passant par les positions réelles des étapes. */}
-              <path
-                class="carte__trace carte__trace--aller"
-                d="M 73.6 51.1 C 60 48 46 47 41.5 41.7 C 39 37 40 27 42.7 22.3 C 44.5 19 47 16.5 50.1 17.8 C 53.5 19.2 55.5 24 53.6 27.3 C 52.2 30 50.5 29.5 48.1 28.3 C 43 26 38.5 42 39 62 C 40 92 37.5 120 38.3 147.1"
-                pathLength="1"
-              />
-              <path
-                class="carte__trace carte__trace--retour"
-                d="M 38.3 147.1 C 50 150 68 145 81.4 134.8"
-                pathLength="1"
-              />
+              {/* Le parcours est découpé en 8 segments, chacun dessiné par la
+                  view-timeline de SON jour : le trait avance étape par étape
+                  (Lyon → J1 → Poitiers → Futuroscope → … → Vallée des Singes
+                  → retour vers Lyon), en phase avec la lecture. */}
+              <path class="carte__trace carte__seg--1" d="M 100 47 C 91 47.5 80 48.5 73.6 51.1" pathLength="1" />
+              <path class="carte__trace carte__seg--2" d="M 73.6 51.1 C 63 55.5 48.5 46.5 41.5 41.7" pathLength="1" />
+              <path class="carte__trace carte__seg--3" d="M 41.5 41.7 C 39.8 34.5 40.6 26.8 42.7 22.3" pathLength="1" />
+              <path class="carte__trace carte__seg--4" d="M 42.7 22.3 C 44.3 18.6 46.9 16.7 50.1 17.8" pathLength="1" />
+              <path class="carte__trace carte__seg--5" d="M 50.1 17.8 C 53.2 19.3 55.3 23.6 53.6 27.3" pathLength="1" />
+              <path class="carte__trace carte__seg--6" d="M 53.6 27.3 C 52.4 29.7 50.4 29.4 48.1 28.3" pathLength="1" />
+              <path class="carte__trace carte__seg--7" d="M 48.1 28.3 C 39 44 37.6 95 38.3 147.1" pathLength="1" />
+              <path class="carte__trace carte__seg--8 carte__trace--retour" d="M 38.3 147.1 C 53 152.5 68 143.5 81.4 134.8 C 88.5 130.2 95 129 100 129.5" pathLength="1" />
             </svg>
 
             <span class="carte__ville carte__ville--poitiers">Poitiers</span>
@@ -485,8 +485,7 @@ const jour1 = jours[0];
      * s'y abonner. */
     timeline-scope:
       --jour-1, --jour-2, --jour-3, --jour-4,
-      --jour-5, --jour-6, --jour-7, --jour-8, --voyage;
-    view-timeline: --voyage block;
+      --jour-5, --jour-6, --jour-7, --jour-8;
   }
 
   .voyage__carte {
@@ -547,17 +546,23 @@ const jour1 = jours[0];
     height: 100%;
   }
 
+  /* PAS de vector-effect: non-scaling-stroke ici : combiné à pathLength="1",
+   * Chrome calcule alors le dash en pixels écran et le dessin au scroll
+   * devient des pointillés erratiques. Le panneau ayant le ratio exact du
+   * viewBox, l'épaisseur reste uniforme (unités viewBox ≈ ×4 à l'écran). */
   .carte__trace {
     stroke: color-mix(in srgb, var(--accent) 75%, #ffffff);
-    stroke-width: 1.1;
+    stroke-width: 0.55;
     stroke-linecap: round;
-    vector-effect: non-scaling-stroke;
     filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent));
   }
 
+  /* Retour : ambre, un peu plus fin (le motif pointillé est incompatible
+   * avec le dessin par stroke-dashoffset). */
   .carte__trace--retour {
     stroke: color-mix(in srgb, #f59e0b 80%, #ffffff);
-    stroke-dasharray: 0.012 0.018;
+    stroke-width: 0.45;
+    opacity: 0.9;
     filter: drop-shadow(0 0 6px rgb(245 158 11 / 0.4));
   }
 
@@ -643,20 +648,22 @@ const jour1 = jours[0];
 
   /* ——— Animations pilotées par le scroll (navigateurs modernes) ——— */
   @supports (timeline-scope: --a) and (animation-timeline: view()) {
-    /* Tracé qui se dessine au fil de la section. */
-    .carte__trace--aller {
+    /* Chaque segment se dessine pendant que SON jour entre dans le viewport :
+     * le trait rejoint l'étape juste avant que sa page n'arrive. */
+    .carte__trace {
       stroke-dasharray: 1;
       stroke-dashoffset: 1;
       animation: carte-tracer linear both;
-      animation-timeline: --voyage;
-      animation-range: cover 2% cover 68%;
+      animation-range: entry 0% cover 45%;
     }
-    .carte__trace--retour {
-      stroke-dashoffset: 1;
-      animation: carte-tracer-retour linear both;
-      animation-timeline: --voyage;
-      animation-range: cover 68% cover 96%;
-    }
+    .carte__seg--1 { animation-timeline: --jour-1; }
+    .carte__seg--2 { animation-timeline: --jour-2; }
+    .carte__seg--3 { animation-timeline: --jour-3; }
+    .carte__seg--4 { animation-timeline: --jour-4; }
+    .carte__seg--5 { animation-timeline: --jour-5; }
+    .carte__seg--6 { animation-timeline: --jour-6; }
+    .carte__seg--7 { animation-timeline: --jour-7; }
+    .carte__seg--8 { animation-timeline: --jour-8; }
 
     /* Marqueur éteint par défaut… */
     .marqueur {
@@ -692,9 +699,6 @@ const jour1 = jours[0];
   }
 
   @keyframes carte-tracer {
-    to { stroke-dashoffset: 0; }
-  }
-  @keyframes carte-tracer-retour {
     to { stroke-dashoffset: 0; }
   }
 
