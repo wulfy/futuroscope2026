@@ -166,6 +166,8 @@ Les covers des 8 jours sont des photos libres de Wikimedia Commons, redimensionn
 | 7 | `02-gibbons.jpg` | Shonagon | Domaine public | [Commons](https://commons.wikimedia.org/wiki/File:Bonobo_Vall%C3%A9e_des_Singes.jpg) |
 | 8 | `04-coucher-soleil.jpg` | Gaétan Veillette | CC BY-SA 4.0 | [Commons](https://commons.wikimedia.org/wiki/File:A50_(Qu%C3%A9bec)-Vue_vers_l%27ouest_du_coucher_de_soleil_sur_l%27autoroute-2022-11-24.jpg) |
 
+La carte de l'accueil (`src/assets/carte/poitiers-osm.jpg`) est un assemblage de tuiles **© OpenStreetMap contributors** (licence ODbL) — l'attribution affichée sur la carte doit rester.
+
 Notes : jour 2 = intérieur d'escape room (esprit Sensas, pas de photo libre de Sensas Poitiers) ; jour 4 = Danse avec les Robots (pas d'Aquascope libre) ; jour 6 = spa générique (pas de photo libre du Clos de la Ribaudière).
 
 ---

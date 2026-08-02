@@ -7,6 +7,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import TimelineCard from '../components/TimelineCard.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
+import carteOsm from '../assets/carte/poitiers-osm.jpg';
 
 const jours = (await getCollection('jours')).sort(
   (a, b) => a.data.ordre - b.data.ordre,
@@ -87,27 +88,42 @@ const jour1 = jours[0];
       <div class="voyage container">
         <div class="voyage__carte" aria-hidden="true">
           <div class="carte">
+            {/* Vraie carte OSM de la région (Poitiers, Futuroscope au nord,
+                Vallée des Singes au sud), assombrie en CSS. */}
+            <Image
+              class="carte__osm"
+              src={carteOsm}
+              alt=""
+              widths={[500, 1000]}
+              sizes="(min-width: 52rem) 26rem, 60vw"
+              loading="lazy"
+            />
+
             <svg
               class="carte__svg"
-              viewBox="0 0 100 130"
-              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 100 161.6"
+              preserveAspectRatio="none"
               fill="none"
             >
-              {/* Aller (trait plein) puis retour (pointillé), dessinés au scroll. */}
+              {/* Aller (trait plein) puis retour (pointillé), dessinés au
+                  scroll — tracé passant par les positions réelles des étapes. */}
               <path
                 class="carte__trace carte__trace--aller"
-                d="M 82 112 C 70 104 64 98 58 92 C 46 80 38 64 34 52 C 31 43 28 38 26 34 C 24 28 28 23 36 25 C 43 27 49 28 47 33 C 45 37 42 38 40 42 C 37 48 40 54 44 62"
+                d="M 73.6 51.1 C 60 48 46 47 41.5 41.7 C 39 37 40 27 42.7 22.3 C 44.5 19 47 16.5 50.1 17.8 C 53.5 19.2 55.5 24 53.6 27.3 C 52.2 30 50.5 29.5 48.1 28.3 C 43 26 38.5 42 39 62 C 40 92 37.5 120 38.3 147.1"
                 pathLength="1"
               />
               <path
                 class="carte__trace carte__trace--retour"
-                d="M 44 62 C 50 76 58 88 68 96 C 72 100 78 107 82 112"
+                d="M 38.3 147.1 C 50 150 68 145 81.4 134.8"
                 pathLength="1"
               />
             </svg>
 
-            <span class="carte__ville carte__ville--lyon">Lyon</span>
             <span class="carte__ville carte__ville--poitiers">Poitiers</span>
+            <span class="carte__ville carte__ville--chasseneuil">Chasseneuil</span>
+            <span class="carte__ville carte__ville--romagne">Romagne</span>
+            <span class="carte__ville carte__ville--lyon">vers Lyon ↘</span>
+            <span class="carte__attribution">© OpenStreetMap</span>
 
             {
               jours.map((jour, i) => (
@@ -477,19 +493,51 @@ const jour1 = jours[0];
     position: relative;
   }
 
+  /* Dimensionné au ratio exact de l'image OSM (1000×1616) : les positions en
+   * % des marqueurs correspondent ainsi précisément aux lieux réels. */
   .carte {
     position: sticky;
-    top: 6vh;
-    height: 88vh;
+    top: 3vh;
+    width: min(100%, calc(94vh / 1.616));
+    aspect-ratio: 1000 / 1616;
+    margin-inline: auto;
     border-radius: var(--rayon-carte, 20px);
     border: 1px solid rgb(255 255 255 / 0.08);
-    background:
-      radial-gradient(80% 60% at 30% 25%, rgb(34 211 238 / 0.05), transparent 70%),
-      radial-gradient(70% 50% at 75% 85%, rgb(232 33 39 / 0.05), transparent 70%),
-      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 12.5%),
-      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 12.5%),
-      color-mix(in srgb, var(--bg) 88%, #1b2344);
+    background: color-mix(in srgb, var(--bg) 88%, #1b2344);
     overflow: hidden;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.45);
+  }
+
+  /* Fond OSM passé en mode nuit : inversion + rotation de teinte. */
+  .carte__osm {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    filter: grayscale(0.15) invert(0.92) hue-rotate(185deg) saturate(0.85)
+      brightness(0.92) contrast(0.95);
+  }
+
+  /* Vignette : fond lisible sous les marqueurs, bords fondus dans la page. */
+  .carte::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(110% 110% at 50% 50%, transparent 55%, rgb(5 8 20 / 0.55) 100%),
+      linear-gradient(to bottom, rgb(5 8 20 / 0.3), transparent 18%);
+  }
+
+  .carte__attribution {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.4rem;
+    z-index: 2;
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+    color: rgb(232 234 242 / 0.55);
   }
 
   .carte__svg {
@@ -524,8 +572,10 @@ const jour1 = jours[0];
     color: var(--texte-doux);
   }
 
-  .carte__ville--lyon { left: 82%; top: 92%; }
-  .carte__ville--poitiers { left: 26%; top: 20.5%; }
+  .carte__ville--poitiers { left: 27%; top: 30.5%; }
+  .carte__ville--chasseneuil { left: 45.7%; top: 6.8%; }
+  .carte__ville--romagne { left: 50%; top: 94.5%; }
+  .carte__ville--lyon { left: 82%; top: 90%; font-size: 0.62rem; }
 
   /* ——— Marqueurs d'étape sur la carte ——— */
   .marqueur {
@@ -560,15 +610,15 @@ const jour1 = jours[0];
     border-radius: 99px;
   }
 
-  /* Positions le long du tracé (repère : viewBox 100 × 130 → %). */
-  .marqueur--1 { left: 58%; top: 70.5%; }
-  .marqueur--2 { left: 34%; top: 40%; }
-  .marqueur--3 { left: 26%; top: 26%; }
-  .marqueur--4 { left: 36%; top: 19%; }
-  .marqueur--5 { left: 47%; top: 25.5%; }
-  .marqueur--6 { left: 40%; top: 32.5%; }
-  .marqueur--7 { left: 44%; top: 47.5%; }
-  .marqueur--8 { left: 68%; top: 74%; }
+  /* Positions géographiques réelles (projection Mercator → % de la bbox). */
+  .marqueur--1 { left: 73.6%; top: 31.6%; } /* arrivée par l'A10 */
+  .marqueur--2 { left: 41.5%; top: 25.8%; } /* Poitiers / Sensas */
+  .marqueur--3 { left: 42.7%; top: 13.8%; } /* Futuroscope */
+  .marqueur--4 { left: 50.1%; top: 11%;   } /* Futuroscope / Aquascope */
+  .marqueur--5 { left: 53.6%; top: 16.9%; } /* Futuroscope dernier jour */
+  .marqueur--6 { left: 48.1%; top: 17.5%; } /* Clos de la Ribaudière */
+  .marqueur--7 { left: 38.3%; top: 91%;   } /* Vallée des Singes, Romagne */
+  .marqueur--8 { left: 81.4%; top: 83.4%; } /* départ vers Lyon */
 
   /* ——— Colonne des jours ——— */
   .voyage__jours {
@@ -684,8 +734,8 @@ const jour1 = jours[0];
       z-index: 2;
     }
     .carte {
-      top: 0.75rem;
-      height: 42svh;
+      top: 0.5rem;
+      width: min(72vw, calc(46svh / 1.616));
     }
     .marqueur__pastille {
       width: 1.7rem;
