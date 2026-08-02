@@ -1,0 +1,226 @@
+---
+/*
+ * MediaGallery.astro — grille dense photos + vidéos d'un jour (10-20+ items).
+ *
+ * Photos : import.meta.glob eager (ImageMetadata) → <Picture avif/webp> dans un
+ * <a class="galerie__lien"> avec href grande taille + data-pswp-width/height
+ * (lightbox PhotoSwipe, cf. scripts/lightbox.ts).
+ * Vidéos : import.meta.glob eager '?url' → <video controls preload=metadata> avec badge ▶.
+ *
+ * Filtrage : uniquement /medias/<id>/, exclut la cover (comparaison .src) et les
+ * fichiers `ambiance-*` (bannières de sections-lieux). Tri par nom de fichier.
+ *
+ * Classes CONTRACTUELLES avec l'agent effets : `galerie`, `galerie__item` (+ .reveal).
+ */
+import { Picture, getImage } from 'astro:assets';
+
+interface Props {
+  id: string;
+  cover: ImageMetadata;
+}
+
+const { id, cover } = Astro.props;
+
+const TAILLE_MAX = 1600;
+
+// Toutes les photos/vidéos du projet, résolues au build (eager).
+const photosGlob = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/medias/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}',
+  { eager: true },
+);
+const videosGlob = import.meta.glob<string>(
+  '/src/assets/medias/**/*.{mp4,webm,MP4,WEBM}',
+  { eager: true, query: '?url', import: 'default' },
+);
+
+const prefixe = `/src/assets/medias/${id}/`;
+const nomFichier = (chemin: string) => chemin.slice(chemin.lastIndexOf('/') + 1);
+const estAmbiance = (chemin: string) => nomFichier(chemin).toLowerCase().startsWith('ambiance-');
+
+type ItemPhoto = { kind: 'photo'; nom: string; meta: ImageMetadata };
+type ItemVideo = { kind: 'video'; nom: string; url: string };
+type Item = ItemPhoto | ItemVideo;
+
+const photos: ItemPhoto[] = Object.entries(photosGlob)
+  .filter(([chemin]) => chemin.startsWith(prefixe) && !estAmbiance(chemin))
+  .map(([chemin, mod]) => ({ kind: 'photo' as const, nom: nomFichier(chemin), meta: mod.default }))
+  .filter((p) => p.meta.src !== cover.src);
+
+const videos: ItemVideo[] = Object.entries(videosGlob)
+  .filter(([chemin]) => chemin.startsWith(prefixe) && !estAmbiance(chemin))
+  .map(([chemin, url]) => ({ kind: 'video' as const, nom: nomFichier(chemin), url }));
+
+// Tri unifié par nom de fichier (photos et vidéos mélangées, ordre = nom).
+const items: Item[] = [...photos, ...videos].sort((a, b) =>
+  a.nom.localeCompare(b.nom, 'fr', { numeric: true }),
+);
+
+// Pré-calcul des grandes images (href lightbox + dimensions réelles affichées).
+const grandes = await Promise.all(
+  items.map(async (item) => {
+    if (item.kind !== 'photo') return null;
+    const largeur = Math.min(TAILLE_MAX, item.meta.width);
+    const hauteur = Math.round((item.meta.height * largeur) / item.meta.width);
+    const grande = await getImage({ src: item.meta, width: largeur, format: 'webp' });
+    return { src: grande.src, largeur, hauteur };
+  }),
+);
+
+// Rythme de la grille : quelques items mis en avant (span) selon l'index.
+const modif = (i: number): string => {
+  if (i % 6 === 0) return ' galerie__item--large';
+  if (i % 6 === 4) return ' galerie__item--wide';
+  if (i % 5 === 2) return ' galerie__item--tall';
+  return '';
+};
+---
+
+{items.length > 0 && (
+  <section class="galerie-bloc" aria-label="Galerie photos et vidéos">
+    <div class="container">
+      <h2 class="galerie-titre">En images</h2>
+      <ul class="galerie">
+        {items.map((item, i) =>
+          item.kind === 'photo' ? (
+            <li class={`galerie__item reveal${modif(i)}`} style={`--reveal-delai: ${(i % 8) * 60}ms`}>
+              <a
+                class="galerie__lien"
+                href={grandes[i]!.src}
+                data-pswp-width={grandes[i]!.largeur}
+                data-pswp-height={grandes[i]!.hauteur}
+                aria-label="Agrandir la photo"
+              >
+                <Picture
+                  src={item.meta}
+                  alt=""
+                  formats={['avif', 'webp']}
+                  widths={[400, 800, 1600]}
+                  sizes="(min-width: 64rem) 25vw, (min-width: 48rem) 33vw, 50vw"
+                  loading="lazy"
+                  class="galerie__img"
+                />
+              </a>
+            </li>
+          ) : (
+            <li class={`galerie__item galerie__item--video reveal${modif(i)}`} style={`--reveal-delai: ${(i % 8) * 60}ms`}>
+              <video class="galerie__video" controls playsinline preload="metadata">
+                <source src={item.url} />
+              </video>
+              <span class="galerie__badge" aria-hidden="true">▶</span>
+            </li>
+          ),
+        )}
+      </ul>
+    </div>
+  </section>
+)}
+
+<style>
+  .galerie-bloc {
+    padding-block: var(--esp-xl);
+  }
+
+  .galerie-titre {
+    margin-bottom: var(--esp-md);
+    font-size: var(--taille-h2);
+  }
+
+  .galerie-titre::after {
+    content: '';
+    display: block;
+    width: 3rem;
+    height: 3px;
+    margin-top: var(--esp-xs);
+    border-radius: var(--rayon-plein);
+    background: var(--accent);
+  }
+
+  /*
+   * Grille dense justifiée : colonnes et hauteur de rangée calées sur la même
+   * mesure → tuiles carrées, les span 2 forment des blocs 2×1 / 1×2 / 2×2.
+   */
+  .galerie {
+    --tuile: clamp(9rem, 20vw, 14rem);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--tuile), 1fr));
+    grid-auto-rows: var(--tuile);
+    grid-auto-flow: dense;
+    gap: var(--esp-2xs);
+  }
+
+  .galerie__item {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--rayon-md);
+    background: var(--bg-carte);
+    box-shadow: var(--ombre-sm);
+  }
+
+  .galerie__item--large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  .galerie__item--wide {
+    grid-column: span 2;
+  }
+  .galerie__item--tall {
+    grid-row: span 2;
+  }
+
+  /* Sur mobile étroit, on évite les span 2 colonnes qui débordent. */
+  @media (max-width: 30rem) {
+    .galerie__item--large,
+    .galerie__item--wide {
+      grid-column: span 1;
+    }
+    .galerie__item--large {
+      grid-row: span 2;
+    }
+  }
+
+  .galerie__lien {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: zoom-in;
+  }
+
+  .galerie__img,
+  .galerie__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .galerie__img {
+    transition: transform var(--transition), filter var(--transition);
+  }
+
+  .galerie__lien:hover .galerie__img,
+  .galerie__lien:focus-visible .galerie__img {
+    transform: scale(1.05);
+    filter: brightness(1.08);
+  }
+
+  .galerie__item--video {
+    background: #000;
+  }
+
+  .galerie__badge {
+    position: absolute;
+    top: var(--esp-2xs);
+    left: var(--esp-2xs);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding-left: 2px;
+    border-radius: var(--rayon-plein);
+    background: color-mix(in srgb, var(--accent) 85%, black);
+    color: var(--bg);
+    font-size: 0.8rem;
+    box-shadow: var(--ombre-sm);
+    pointer-events: none;
+  }
+</style>

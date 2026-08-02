@@ -1,0 +1,215 @@
+---
+/*
+ * TimelineCard.astro — une carte de jour sur la timeline d'accueil.
+ * Carte entière cliquable vers /jours/<id>/, cover optimisée, pastille emoji
+ * colorée par l'accent du jour, date en français, titre, teaser et métadonnées.
+ */
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'jours'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+
+const accent = data.accent ?? 'var(--accent)';
+
+// Date lisible en français : « samedi 25 juillet ».
+const dateLisible = new Intl.DateTimeFormat('fr-FR', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+}).format(data.date);
+const dateIso = data.date.toISOString().slice(0, 10);
+---
+
+<a
+  class="carte-jour"
+  href={`/jours/${entry.id}/`}
+  style={`--carte-accent: ${accent};`}
+>
+  <div class="carte-jour__media">
+    <Image
+      class="carte-jour__img"
+      src={data.cover}
+      alt={data.coverAlt}
+      widths={[320, 480, 720]}
+      sizes="(min-width: 52rem) 24rem, 92vw"
+      loading="lazy"
+    />
+    <span class="carte-jour__ordre">Jour {data.ordre}</span>
+    <span class="carte-jour__pastille" aria-hidden="true">{data.emoji}</span>
+  </div>
+
+  <div class="carte-jour__corps">
+    <p class="carte-jour__date">
+      <time datetime={dateIso}>{dateLisible}</time>
+    </p>
+    <h3 class="carte-jour__titre">{data.titre}</h3>
+    {data.sousTitre && <p class="carte-jour__teaser">{data.sousTitre}</p>}
+    <p class="carte-jour__meta">
+      <span class="carte-jour__lieu">{data.lieu}</span>
+      {data.hotel && <span class="carte-jour__hotel">{data.hotel}</span>}
+    </p>
+  </div>
+</a>
+
+<style>
+  .carte-jour {
+    --accent: var(--carte-accent);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-carte);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-lg);
+    box-shadow: var(--ombre-md);
+    transition:
+      transform var(--transition),
+      border-color var(--transition),
+      box-shadow var(--transition);
+  }
+
+  .carte-jour:hover,
+  .carte-jour:focus-visible {
+    transform: translateY(-6px);
+    border-color: var(--carte-accent);
+    box-shadow:
+      var(--ombre-lg),
+      0 0 0 1px var(--carte-accent),
+      0 18px 48px
+        color-mix(in srgb, var(--carte-accent) 28%, transparent);
+  }
+
+  .carte-jour:focus-visible {
+    outline: none;
+  }
+
+  /* — Media — */
+  .carte-jour__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--bg-doux);
+  }
+
+  .carte-jour__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 600ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .carte-jour:hover .carte-jour__img {
+    transform: scale(1.05);
+  }
+
+  .carte-jour__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--bg) 78%, transparent) 0%,
+      transparent 55%
+    );
+  }
+
+  .carte-jour__ordre {
+    position: absolute;
+    top: var(--esp-2xs);
+    left: var(--esp-2xs);
+    z-index: 1;
+    padding: 0.15rem 0.6rem;
+    font-family: var(--font-titres), sans-serif;
+    font-size: var(--taille-petit);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--texte);
+    background: color-mix(in srgb, var(--bg) 55%, transparent);
+    backdrop-filter: var(--flou-verre);
+    border: 1px solid var(--bordure-douce);
+    border-radius: var(--rayon-plein);
+  }
+
+  .carte-jour__pastille {
+    position: absolute;
+    z-index: 1;
+    bottom: calc(-1 * var(--esp-md));
+    right: var(--esp-sm);
+    width: 3.25rem;
+    height: 3.25rem;
+    display: grid;
+    place-items: center;
+    font-size: 1.6rem;
+    line-height: 1;
+    border-radius: var(--rayon-plein);
+    background: radial-gradient(
+      circle at 30% 25%,
+      color-mix(in srgb, var(--carte-accent) 55%, var(--bg-carte)),
+      var(--bg-carte)
+    );
+    border: 1.5px solid var(--carte-accent);
+    box-shadow:
+      var(--ombre-md),
+      0 0 20px
+        color-mix(in srgb, var(--carte-accent) 40%, transparent);
+    transition: transform var(--transition);
+  }
+
+  .carte-jour:hover .carte-jour__pastille {
+    transform: translateY(-4px) rotate(-6deg);
+  }
+
+  /* — Corps — */
+  .carte-jour__corps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-2xs);
+    padding: var(--esp-md) var(--esp-sm) var(--esp-sm);
+  }
+
+  .carte-jour__date {
+    font-family: var(--font-titres), sans-serif;
+    font-size: var(--taille-petit);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: capitalize;
+    color: color-mix(in srgb, var(--carte-accent) 82%, var(--texte));
+  }
+
+  .carte-jour__titre {
+    font-size: var(--taille-h3);
+    color: var(--texte);
+  }
+
+  .carte-jour__teaser {
+    color: var(--texte-doux);
+    font-size: var(--taille-petit);
+    line-height: 1.5;
+  }
+
+  .carte-jour__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--esp-2xs);
+    margin-top: var(--esp-3xs);
+    font-size: var(--taille-petit);
+    color: var(--texte-tenu);
+  }
+
+  .carte-jour__lieu::before {
+    content: '📍';
+    margin-right: 0.3em;
+    font-size: 0.85em;
+  }
+
+  .carte-jour__hotel::before {
+    content: '·';
+    margin-right: var(--esp-2xs);
+    color: var(--texte-tenu);
+  }
+</style>

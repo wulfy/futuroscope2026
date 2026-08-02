@@ -1,20 +1,266 @@
 ---
-// TEMPORAIRE : remplacé par l'agent accueil
+/*
+ * index.astro — page d'accueil : hero plein écran + section « périple »
+ * (tracé d'itinéraire SVG animé au scroll + timeline des 8 jours).
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Itineraire from '../components/Itineraire.astro';
+import Timeline from '../components/Timeline.astro';
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
 
-const jours = (await getCollection('jours')).sort((a, b) => a.data.ordre - b.data.ordre);
+const jours = (await getCollection('jours')).sort(
+  (a, b) => a.data.ordre - b.data.ordre,
+);
+const jour1 = jours[0];
 ---
 
 <BaseLayout
   title="Souvenirs — Futuroscope & Poitiers"
-  description="Huit jours de vacances, de Lyon à Poitiers : road trip en Tesla, Futuroscope, Aquascope, SPA et Vallée des Singes."
+  description="Huit jours de vacances de Lyon à Poitiers : road trip en Tesla, trois jours au Futuroscope, Aquascope, SPA au Clos de la Ribaudière et Vallée des Singes. Un carnet de voyage immersif."
+  ogImage={jour1.data.cover}
 >
-  <main id="contenu" class="container section">
-    <h1>Souvenirs de vacances</h1>
-    <p>Placeholder d'accueil — la timeline et l'itinéraire animé arrivent bientôt.</p>
-    <ul>
-      {jours.map((j) => <li>{j.data.emoji} {j.data.titre} — {j.data.lieu}</li>)}
-    </ul>
+  <main id="contenu">
+    {/* ——— Hero d'accueil ——— */}
+    <header class="hero-accueil">
+      <div class="hero-accueil__fond" aria-hidden="true">
+        <Image
+          class="hero-accueil__img"
+          src={jour1.data.cover}
+          alt=""
+          widths={[720, 1280, 1920]}
+          sizes="100vw"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+
+      <div class="hero-accueil__contenu">
+        <p class="hero-accueil__kicker">Carnet de voyage</p>
+        <h1 class="hero-accueil__titre">
+          <span>Futuroscope</span>
+          <span class="hero-accueil__amp">&amp;</span>
+          <span>Poitiers</span>
+        </h1>
+        <p class="hero-accueil__dates">25 juillet → 1<sup>er</sup> août 2026</p>
+        <p class="hero-accueil__sous">8 jours de Lyon à Poitiers</p>
+      </div>
+
+      <a class="hero-accueil__scroll" href="#periple">
+        <span>Le périple</span>
+        <span class="hero-accueil__chevron" aria-hidden="true"></span>
+      </a>
+    </header>
+
+    {/* ——— Périple : tracé + timeline ——— */}
+    <section id="periple" class="periple section" aria-labelledby="periple-titre">
+      <div class="periple__intro container">
+        <h2 id="periple-titre" class="periple__titre">Le périple, jour après jour</h2>
+        <p class="periple__accroche">
+          De la route en Tesla jusqu'au retour au coucher du soleil, suivez le
+          fil de nos huit journées le long du tracé Lyon&nbsp;→&nbsp;Poitiers.
+        </p>
+      </div>
+
+      <div class="periple__piste">
+        <Itineraire />
+        <Timeline />
+      </div>
+    </section>
   </main>
 </BaseLayout>
+
+<style>
+  /* ————————————————————— Hero ————————————————————— */
+  .hero-accueil {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--esp-xl) var(--esp-sm);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero-accueil__fond {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+
+  .hero-accueil__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.35;
+    filter: saturate(1.1);
+  }
+
+  /* Voile dégradé pour la lisibilité + ancrage dark. */
+  .hero-accueil::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(
+        120% 80% at 50% 12%,
+        transparent 0%,
+        color-mix(in srgb, var(--bg) 55%, transparent) 55%,
+        var(--bg) 100%
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--bg) 60%, transparent) 0%,
+        color-mix(in srgb, var(--bg) 30%, transparent) 40%,
+        var(--bg) 100%
+      );
+  }
+
+  /* Halo accent discret derrière le titre. */
+  .hero-accueil::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 38%;
+    left: 50%;
+    width: min(48rem, 90vw);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(
+      circle,
+      var(--accent-voile) 0%,
+      transparent 62%
+    );
+    pointer-events: none;
+  }
+
+  .hero-accueil__contenu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--esp-sm);
+    max-width: 60rem;
+  }
+
+  .hero-accueil__kicker {
+    font-family: var(--font-titres), sans-serif;
+    font-size: var(--taille-petit);
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent-texte);
+  }
+
+  .hero-accueil__titre {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 0.98;
+    font-size: var(--taille-titre-hero);
+    text-shadow: 0 2px 40px color-mix(in srgb, var(--bg) 80%, transparent);
+  }
+
+  .hero-accueil__amp {
+    font-weight: 400;
+    color: var(--accent);
+    font-size: 0.7em;
+    margin-block: -0.05em;
+  }
+
+  .hero-accueil__dates {
+    margin-top: var(--esp-xs);
+    font-family: var(--font-titres), sans-serif;
+    font-size: var(--taille-h3);
+    font-weight: 600;
+    color: var(--texte);
+  }
+
+  .hero-accueil__dates sup {
+    font-size: 0.6em;
+  }
+
+  .hero-accueil__sous {
+    font-size: var(--taille-corps);
+    color: var(--texte-doux);
+    letter-spacing: 0.01em;
+  }
+
+  /* Indicateur de scroll. */
+  .hero-accueil__scroll {
+    position: absolute;
+    bottom: var(--esp-lg);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--esp-2xs);
+    font-family: var(--font-titres), sans-serif;
+    font-size: var(--taille-petit);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--texte-doux);
+    transition: color var(--transition);
+  }
+
+  .hero-accueil__scroll:hover {
+    color: var(--accent);
+  }
+
+  .hero-accueil__chevron {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-accueil__chevron {
+      animation: hero-rebond 1.8s ease-in-out infinite;
+    }
+  }
+
+  @keyframes hero-rebond {
+    0%,
+    100% {
+      transform: rotate(45deg) translate(0, 0);
+      opacity: 0.7;
+    }
+    50% {
+      transform: rotate(45deg) translate(3px, 3px);
+      opacity: 1;
+    }
+  }
+
+  /* ————————————————————— Périple ————————————————————— */
+  .periple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .periple__intro {
+    text-align: center;
+    max-width: var(--largeur-prose);
+    margin-bottom: var(--esp-xl);
+  }
+
+  .periple__titre {
+    font-size: var(--taille-h2);
+  }
+
+  .periple__accroche {
+    margin-top: var(--esp-sm);
+    color: var(--texte-doux);
+    text-wrap: balance;
+  }
+
+  /* Piste : contexte de positionnement pour le tracé absolu + la timeline. */
+  .periple__piste {
+    position: relative;
+  }
+</style>

@@ -1,0 +1,162 @@
+---
+/*
+ * JourLayout.astro — mise en page d'une journée.
+ *
+ * BaseLayout (SEO + ambiance + accent) → <main> : Hero → récit découpé en
+ * sections-lieux → MediaGallery → JourNav.
+ *
+ * SECTIONS PAR LIEU (fonctionnalité clé) :
+ *  - On rend l'entrée via `render(entry)` puis on obtient le HTML final (images
+ *    inline résolues) en sérialisant le composant `Content` avec la Container API
+ *    (`renderToString`). On NE peut PAS se contenter de `entry.rendered.html` :
+ *    il contient des marqueurs `__ASTRO_IMAGE_="…"` non résolus (Astro ne les
+ *    remplace qu'au rendu du composant Content).
+ *  - On découpe ce HTML sur les `<h2>`. Chaque tranche dont le titre correspond
+ *    (slug insensible casse/accents) à une entrée `lieux[]` est précédée d'une
+ *    bannière immersive <SectionLieu> qui porte le titre (et l'ancre) ; le `<h2>`
+ *    d'origine est alors retiré du flux. Un `<h2>` sans correspondance reste un
+ *    titre simple dans la prose. Fonctionne aussi sans `lieux[]` (article d'un bloc).
+ */
+import { experimental_AstroContainer } from 'astro/container';
+import { render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+
+import BaseLayout from './BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import SectionLieu from '../components/SectionLieu.astro';
+import MediaGallery from '../components/MediaGallery.astro';
+import JourNav from '../components/JourNav.astro';
+
+interface Props {
+  entry: CollectionEntry<'jours'>;
+}
+
+const { entry } = Astro.props;
+const { data } = entry;
+
+type Lieu = NonNullable<CollectionEntry<'jours'>['data']['lieux']>[number];
+
+// --- Rendu du récit en HTML (images inline résolues) via la Container API ---
+const { Content } = await render(entry);
+const container = await experimental_AstroContainer.create();
+const htmlComplet = await container.renderToString(Content);
+
+// --- Découpage sur les <h2> et correspondance avec lieux[] ---
+const slugifie = (s: string): string =>
+  s
+    .replace(/<[^>]+>/g, '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const lieuxParSlug = new Map<string, Lieu>();
+for (const lieu of data.lieux ?? []) {
+  lieuxParSlug.set(slugifie(lieu.titre), lieu);
+}
+
+type Bloc =
+  | { type: 'prose'; html: string }
+  | { type: 'banniere'; lieu: Lieu; id?: string };
+
+const H2 = /<h2\b([^>]*)>([\s\S]*?)<\/h2>/g;
+const titres = [...htmlComplet.matchAll(H2)];
+const blocs: Bloc[] = [];
+
+// Intro : tout ce qui précède le premier <h2>.
+const intro = htmlComplet.slice(0, titres[0]?.index ?? htmlComplet.length);
+if (intro.trim()) blocs.push({ type: 'prose', html: intro });
+
+titres.forEach((m, i) => {
+  const debutCorps = (m.index ?? 0) + m[0].length;
+  const finCorps = i + 1 < titres.length ? titres[i + 1].index : htmlComplet.length;
+  const corps = htmlComplet.slice(debutCorps, finCorps);
+
+  const texte = m[2].replace(/<[^>]+>/g, '').trim();
+  const lieu = lieuxParSlug.get(slugifie(texte));
+  const id = m[1].match(/id="([^"]*)"/)?.[1];
+
+  if (lieu) {
+    blocs.push({ type: 'banniere', lieu, id });
+    if (corps.trim()) blocs.push({ type: 'prose', html: corps });
+  } else {
+    blocs.push({ type: 'prose', html: m[0] + corps });
+  }
+});
+
+// --- Métadonnées SEO ---
+const texteNu = htmlComplet.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+const extrait = texteNu.length > 155 ? `${texteNu.slice(0, 152).trimEnd()}…` : texteNu;
+const description = data.sousTitre ?? extrait;
+---
+
+<BaseLayout
+  title={data.titre}
+  description={description}
+  ogImage={data.cover}
+  bodyClass={`ambiance-${data.ambiance ?? 'futur'}`}
+  accent={data.accent}
+>
+  <main id="contenu" class="jour">
+    <Hero
+      emoji={data.emoji}
+      titre={data.titre}
+      sousTitre={data.sousTitre}
+      date={data.date}
+      lieu={data.lieu}
+      hotel={data.hotel}
+      cover={data.cover}
+      coverAlt={data.coverAlt}
+    />
+
+    <div class="jour__corps">
+      <article class="jour__recit container">
+        {blocs.map((bloc) =>
+          bloc.type === 'banniere' ? (
+            <SectionLieu lieu={bloc.lieu} id={bloc.id} />
+          ) : (
+            <div class="prose reveal" set:html={bloc.html} />
+          ),
+        )}
+      </article>
+
+      <MediaGallery id={entry.id} cover={data.cover} />
+
+      <JourNav id={entry.id} />
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  import '../scripts/lightbox.ts';
+</script>
+
+<style>
+  .jour {
+    display: block;
+  }
+
+  /*
+   * Le corps (fond opaque, z-index positif) remonte par-dessus le Hero sticky
+   * (z-index 0) → effet « le contenu glisse sur l'image ».
+   */
+  .jour__corps {
+    position: relative;
+    z-index: 1;
+    background: var(--bg);
+    border-radius: var(--rayon-xl) var(--rayon-xl) 0 0;
+    box-shadow: 0 -32px 64px rgba(0, 0, 0, 0.5);
+    padding-top: var(--esp-lg);
+  }
+
+  .jour__recit {
+    padding-top: var(--esp-md);
+  }
+
+  /* Les bannières de section débordent la colonne de prose (plein container). */
+  .jour__recit > .prose + :global(.banniere-lieu),
+  .jour__recit > :global(.banniere-lieu) + .prose {
+    margin-top: var(--esp-lg);
+  }
+</style>

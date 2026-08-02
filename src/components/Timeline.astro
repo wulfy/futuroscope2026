@@ -1,0 +1,133 @@
+---
+/*
+ * Timeline.astro — la liste des 8 jours accrochée le long du tracé d'itinéraire.
+ * getCollection('jours') triée par `ordre`, une TimelineCard par jour.
+ * Mobile : 1 colonne, tracé à gauche. Desktop : alternance gauche/droite de part
+ * et d'autre du tracé central (la colonne vertébrale = le SVG d'Itineraire).
+ * Chaque item porte `.reveal` (apparition au scroll, fournie par effets.css) avec
+ * un délai décalé.
+ */
+import { getCollection } from 'astro:content';
+import TimelineCard from './TimelineCard.astro';
+
+const jours = (await getCollection('jours')).sort(
+  (a, b) => a.data.ordre - b.data.ordre,
+);
+---
+
+<ol class="timeline">
+  {
+    jours.map((jour, i) => (
+      <li
+        class="timeline__item reveal"
+        style={`--i-accent: ${jour.data.accent ?? 'var(--accent)'}; --reveal-delai: ${i * 80}ms;`}
+      >
+        <TimelineCard entry={jour} />
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .timeline {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: var(--largeur-max);
+    margin-inline: auto;
+    /* Dégage la colonne de gauche pour le tracé (mobile). */
+    padding-left: 4.25rem;
+    padding-right: var(--esp-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-lg);
+  }
+
+  .timeline__item {
+    position: relative;
+  }
+
+  /* Ligne courte reliant la carte au tracé. */
+  .timeline__item::before {
+    content: '';
+    position: absolute;
+    top: 3.1rem;
+    height: 2px;
+    right: 100%;
+    width: 2.75rem;
+    background: linear-gradient(
+      to left,
+      var(--i-accent),
+      color-mix(in srgb, var(--i-accent) 10%, transparent)
+    );
+  }
+
+  /* Nœud posé sur le tracé. */
+  .timeline__item::after {
+    content: '';
+    position: absolute;
+    top: 2.75rem;
+    right: calc(100% + 2.75rem - 0.45rem);
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: var(--rayon-plein);
+    background: var(--i-accent);
+    box-shadow:
+      0 0 0 4px var(--bg),
+      0 0 12px color-mix(in srgb, var(--i-accent) 65%, transparent);
+  }
+
+  /* — Desktop : alternance de part et d'autre du tracé central — */
+  @media (min-width: 52rem) {
+    .timeline {
+      padding-left: var(--esp-sm);
+      padding-right: var(--esp-sm);
+      gap: var(--esp-xl);
+    }
+
+    .timeline__item {
+      width: calc(50% - 3.25rem);
+    }
+
+    /* Impairs à gauche, connecteur vers la droite (centre). */
+    .timeline__item:nth-child(odd) {
+      margin-right: auto;
+    }
+    .timeline__item:nth-child(odd)::before {
+      left: 100%;
+      right: auto;
+      width: 3.25rem;
+      background: linear-gradient(
+        to right,
+        var(--i-accent),
+        color-mix(in srgb, var(--i-accent) 10%, transparent)
+      );
+    }
+    .timeline__item:nth-child(odd)::after {
+      left: calc(100% + 3.25rem - 0.45rem);
+      right: auto;
+    }
+
+    /* Pairs à droite, connecteur vers la gauche (centre). */
+    .timeline__item:nth-child(even) {
+      margin-left: auto;
+    }
+    .timeline__item:nth-child(even)::before {
+      right: 100%;
+      left: auto;
+      width: 3.25rem;
+    }
+    .timeline__item:nth-child(even)::after {
+      right: calc(100% + 3.25rem - 0.45rem);
+      left: auto;
+    }
+
+    /* Léger décalage vertical pour l'effet zigzag. */
+    .timeline__item:nth-child(even) {
+      margin-top: calc(-1 * var(--esp-2xl));
+    }
+    .timeline__item:first-child {
+      margin-top: 0;
+    }
+  }
+</style>

@@ -1,0 +1,21 @@
+---
+/*
+ * jours/[slug].astro — une page statique par jour.
+ * Le slug = id de l'entrée (nom de fichier sans extension, ex. « 03-futuroscope »).
+ */
+import { getCollection } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import JourLayout from '../../layouts/JourLayout.astro';
+
+export const getStaticPaths = (async () => {
+  const jours = await getCollection('jours');
+  return jours.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+---
+
+<JourLayout entry={entry} />

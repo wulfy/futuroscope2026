@@ -1,0 +1,108 @@
+---
+/*
+ * SectionLieu.astro — bannière d'ambiance immersive ouvrant une section-lieu.
+ * Rendue AVANT le récit d'un lieu dont le `## Titre` correspond à une entrée
+ * `lieux[]` du frontmatter (cf. JourLayout). Image plein largeur ~60svh,
+ * dégradé vers --bg, titre du lieu en overlay.
+ *
+ * Classes CONTRACTUELLES avec l'agent effets : `banniere-lieu` (racine) et
+ * `banniere-lieu__img` (image) → il y branche le parallax scroll-driven.
+ * Ici : uniquement le layout (dimensionnement, overlay, positionnement).
+ */
+import { Image } from 'astro:assets';
+
+interface Props {
+  lieu: {
+    titre: string;
+    image: ImageMetadata;
+    imageAlt: string;
+  };
+  id?: string;
+}
+
+const { lieu, id } = Astro.props;
+---
+
+<section class="banniere-lieu reveal" id={id}>
+  <div class="banniere-lieu__cadre">
+    <Image
+      src={lieu.image}
+      alt={lieu.imageAlt}
+      layout="full-width"
+      loading="lazy"
+      class="banniere-lieu__img"
+    />
+    <div class="banniere-lieu__voile" aria-hidden="true"></div>
+  </div>
+  <div class="banniere-lieu__contenu">
+    <span class="banniere-lieu__tag" aria-hidden="true">Étape</span>
+    <h2 class="banniere-lieu__titre">{lieu.titre}</h2>
+  </div>
+</section>
+
+<style>
+  .banniere-lieu {
+    position: relative;
+    min-height: 60svh;
+    display: grid;
+    grid-template-areas: 'contenu';
+    place-items: end start;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: var(--rayon-lg);
+    margin-block: var(--esp-lg);
+  }
+
+  .banniere-lieu__cadre {
+    grid-area: contenu;
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+  }
+
+  /*
+   * L'image déborde légèrement (110%) pour laisser du jeu au parallax posé par
+   * effets.css sur .banniere-lieu__img. Sans effet, le cover reste correct.
+   */
+  .banniere-lieu__img {
+    width: 100%;
+    height: 110%;
+    object-fit: cover;
+    will-change: transform;
+  }
+
+  .banniere-lieu__voile {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, var(--bg) 1%, color-mix(in srgb, var(--bg) 45%, transparent) 28%, transparent 60%),
+      linear-gradient(115deg, color-mix(in srgb, var(--accent) 22%, transparent), transparent 55%);
+  }
+
+  .banniere-lieu__contenu {
+    grid-area: contenu;
+    padding: var(--esp-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-2xs);
+  }
+
+  .banniere-lieu__tag {
+    font-family: var(--font-titres), sans-serif;
+    font-size: var(--taille-petit);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .banniere-lieu__titre {
+    font-size: var(--taille-h1);
+    color: var(--texte);
+    text-shadow: 0 4px 28px rgba(0, 0, 0, 0.55);
+    max-width: 18ch;
+  }
+
+  /* La barre d'accent de .prose h2 ne s'applique pas ici (hors .prose). */
+</style>

@@ -1,10 +1,158 @@
 /*
- * effets.css — STUB (rempli par l'agent « ambiances + effets »).
+ * effets.css — effets de scroll type Apple, 0 Ko JS par défaut.
  *
- * Contiendra : les scroll-driven animations (animation-timeline: view()/scroll()),
- * la classe utilitaire `.reveal` (reveals décalés au scroll), le hero sticky,
- * le fallback @supports not (animation-timeline: view()) + IntersectionObserver,
- * et la neutralisation sous prefers-reduced-motion: reduce.
+ * Trois régimes, dans cet ordre de priorité (le dernier bloc gagne) :
+ *  1. Navigateur moderne  → @supports (animation-timeline: view())  : scroll-driven natif.
+ *  2. Navigateur ancien   → @supports not (...) + classe html.js-reveal posée par
+ *                            reveal-fallback.ts : reveals via transition + IntersectionObserver.
+ *  3. prefers-reduced-motion: reduce → tout neutralisé, éléments visibles d'emblée.
  *
- * Importé par BaseLayout — laissé volontairement vide pour que le build compile.
+ * ─ Décalage des reveals (--reveal-delai) ─
+ * animation-delay N'A PAS d'effet avec une timeline de scroll (valeur temporelle
+ * ignorée). Le décalage se fait donc différemment selon le régime :
+ *   • Natif : le décalage est SPATIAL, pas temporel — chaque `.reveal` s'anime selon
+ *     sa propre entrée dans le viewport (animation-range en `entry`), ce qui produit
+ *     un échelonnement naturel au scroll ; les cascades voulues (galerie) sont
+ *     obtenues en variant animation-range via nth-child.
+ *   • Fallback : `--reveal-delai` (ms) est honoré littéralement via transition-delay.
+ *
+ * ─ Garde-fous « toujours scrollable » ─
+ *   • Le fallback ne cache un `.reveal` que sous `html.js-reveal` (posée par le JS) :
+ *     pas de JS ⇒ rien de caché.
+ *   • En natif, animation-fill-mode: both + timeline continue ⇒ un élément déjà dans
+ *     le viewport (ou atteignable au scroll) est toujours révélé ; aucune hauteur ni
+ *     overflow ne piège le scroll ici.
  */
+
+/* Géométrie du média du hero : nécessaire au clip du scale et au scrim d'ambiance
+ * (::after posé par ambiances.css). Valable dans tous les régimes. */
+.hero__media {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ============================================================
+ * 1. NATIF — scroll-driven animations
+ * ============================================================ */
+@supports (animation-timeline: view()) {
+  /* — Reveal générique — */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    animation: reveal-entree linear both;
+    /* timeline/range APRÈS le shorthand (le shorthand `animation` réinitialise
+     * animation-timeline à auto). */
+    animation-timeline: view();
+    animation-range: entry 0% entry 55%;
+    will-change: opacity, transform;
+  }
+
+  @keyframes reveal-entree {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* — Hero : le média scale légèrement + s'assombrit pendant qu'on quitte le hero.
+   * Piloté par le scroll racine sur les 100 premiers vh (la hauteur du hero),
+   * indépendant du sticky géré par le composant. Scale vers le haut (grossit) →
+   * clippé par .hero__media overflow:hidden, aucun bord visible. */
+  .hero__media img {
+    animation: hero-sortie linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 100vh;
+    transform-origin: center;
+    will-change: transform, filter;
+  }
+
+  @keyframes hero-sortie {
+    to {
+      transform: scale(1.12);
+      filter: brightness(0.45);
+    }
+  }
+
+  /* — Bannières de sections-lieux : parallax léger de l'image.
+   * scale 1.14 constant pour éviter tout bord vide pendant le translate. */
+  .banniere-lieu__img {
+    animation: banniere-parallax linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 100%;
+    will-change: transform;
+  }
+
+  @keyframes banniere-parallax {
+    from {
+      transform: translateY(-7%) scale(1.14);
+    }
+    to {
+      transform: translateY(7%) scale(1.14);
+    }
+  }
+
+  /* — Galerie : reveals en cascade. Chaque item s'anime à son entrée ; nth-child
+   * décale légèrement la plage pour un effet de vague dans chaque rangée. */
+  .galerie__item {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+    animation: galerie-entree linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 45%;
+    will-change: opacity, transform;
+  }
+
+  .galerie__item:nth-child(3n + 2) {
+    animation-range: entry 6% entry 51%;
+  }
+
+  .galerie__item:nth-child(3n + 3) {
+    animation-range: entry 12% entry 57%;
+  }
+
+  @keyframes galerie-entree {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* ============================================================
+ * 2. FALLBACK — IntersectionObserver (classe html.js-reveal)
+ *    Ne cache RIEN sans JS. Seuls les `.reveal` sont concernés
+ *    (la galerie/bannières/hero restent statiques et visibles).
+ * ============================================================ */
+@supports not (animation-timeline: view()) {
+  html.js-reveal .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    transition-delay: var(--reveal-delai, 0ms);
+    will-change: opacity, transform;
+  }
+
+  html.js-reveal .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+ * 3. MOUVEMENT RÉDUIT — gagne sur tout : rien n'est caché ni animé
+ * ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .galerie__item,
+  .hero__media img,
+  .banniere-lieu__img {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    will-change: auto;
+  }
+}

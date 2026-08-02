@@ -1,0 +1,178 @@
+---
+/*
+ * JourNav.astro — navigation jour précédent / suivant en pied de page jour.
+ * Deux grandes cartes cliquables (mini-cover, libellé directionnel, titre, emoji) ;
+ * une seule carte aux extrémités. Toujours un lien « Tous les jours » vers /.
+ */
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+
+const jours = (await getCollection('jours')).sort((a, b) => a.data.ordre - b.data.ordre);
+const index = jours.findIndex((j) => j.id === id);
+const precedent = index > 0 ? jours[index - 1] : null;
+const suivant = index >= 0 && index < jours.length - 1 ? jours[index + 1] : null;
+---
+
+<nav class="journav" aria-label="Navigation entre les jours">
+  <div class="container">
+    <div class="journav__cartes">
+      {precedent ? (
+        <a class="journav__carte journav__carte--prec reveal" href={`/jours/${precedent.id}/`}>
+          <Image
+            src={precedent.data.cover}
+            alt=""
+            width={160}
+            height={160}
+            class="journav__vignette"
+          />
+          <span class="journav__texte">
+            <span class="journav__sens">← Jour précédent</span>
+            <span class="journav__titre">
+              <span class="journav__emoji" aria-hidden="true">{precedent.data.emoji}</span>
+              {precedent.data.titre}
+            </span>
+          </span>
+        </a>
+      ) : (
+        <span class="journav__vide" aria-hidden="true"></span>
+      )}
+
+      {suivant ? (
+        <a class="journav__carte journav__carte--suiv reveal" href={`/jours/${suivant.id}/`}>
+          <Image
+            src={suivant.data.cover}
+            alt=""
+            width={160}
+            height={160}
+            class="journav__vignette"
+          />
+          <span class="journav__texte">
+            <span class="journav__sens">Jour suivant →</span>
+            <span class="journav__titre">
+              <span class="journav__emoji" aria-hidden="true">{suivant.data.emoji}</span>
+              {suivant.data.titre}
+            </span>
+          </span>
+        </a>
+      ) : (
+        <span class="journav__vide" aria-hidden="true"></span>
+      )}
+    </div>
+
+    <a class="journav__tous" href="/">↺ Tous les jours</a>
+  </div>
+</nav>
+
+<style>
+  .journav {
+    padding-block: var(--esp-lg);
+    border-top: 1px solid var(--bordure-douce);
+  }
+
+  .journav__cartes {
+    display: grid;
+    gap: var(--esp-sm);
+  }
+
+  @media (min-width: 40rem) {
+    .journav__cartes {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .journav__carte {
+    display: flex;
+    align-items: center;
+    gap: var(--esp-sm);
+    min-height: 44px;
+    padding: var(--esp-2xs);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon-lg);
+    background: var(--bg-carte);
+    transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+  }
+
+  .journav__carte:hover,
+  .journav__carte:focus-visible {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: var(--ombre-accent);
+  }
+
+  /* La carte « suivant » aligne son contenu à droite (sens de lecture du voyage). */
+  .journav__carte--suiv {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+
+  .journav__vignette {
+    flex-shrink: 0;
+    width: clamp(3.5rem, 12vw, 4.5rem);
+    height: clamp(3.5rem, 12vw, 4.5rem);
+    object-fit: cover;
+    border-radius: var(--rayon-md);
+  }
+
+  .journav__texte {
+    display: flex;
+    flex-direction: column;
+    gap: var(--esp-3xs);
+    min-width: 0;
+  }
+
+  .journav__sens {
+    font-family: var(--font-titres), sans-serif;
+    font-size: var(--taille-petit);
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .journav__titre {
+    font-family: var(--font-titres), sans-serif;
+    font-weight: 600;
+    color: var(--texte);
+    line-height: 1.2;
+  }
+
+  .journav__emoji {
+    margin-inline-end: var(--esp-3xs);
+  }
+
+  .journav__vide {
+    display: none;
+  }
+
+  @media (min-width: 40rem) {
+    .journav__vide {
+      display: block;
+    }
+  }
+
+  .journav__tous {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--esp-3xs);
+    margin-top: var(--esp-md);
+    padding: var(--esp-2xs) var(--esp-md);
+    min-height: 44px;
+    border-radius: var(--rayon-plein);
+    border: 1px solid var(--bordure);
+    font-family: var(--font-titres), sans-serif;
+    font-size: var(--taille-petit);
+    color: var(--texte-doux);
+    transition: color var(--transition), border-color var(--transition);
+  }
+
+  .journav__tous:hover,
+  .journav__tous:focus-visible {
+    color: var(--texte);
+    border-color: var(--accent);
+  }
+</style>

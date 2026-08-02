@@ -1,11 +1,417 @@
 /*
- * ambiances.css — STUB (rempli par l'agent « ambiances + effets »).
+ * ambiances.css — 8 ambiances, une par jour, activées par une classe sur <body>
+ * (ambiance-route | sens | futur | space-aqua | nocturne | spa | jungle | sunset),
+ * plus l'accent injecté en --accent. Chaque ambiance pose :
+ *   • un scrim de dégradé sur le média du hero (.hero__media::after),
+ *   • un/des motif(s) décoratif(s) en couche FIXE plein écran (body::before/::after),
+ *     en CSS pur (gradients/masques), TRÈS discrets, jamais gênants pour la lecture,
+ *   • des variantes de timing.
  *
- * Contiendra les 8 ambiances par jour, chacune activée par une classe sur <body>
- * (ambiance-route | sens | futur | space-aqua | nocturne | spa | jungle | sunset) :
- * dégradé de fond du hero, motif décoratif en couche fixe (::before/::after :
- * ligne de route, ondes/braille, grille néon, étoiles+bulles, aurora, vapeur,
- * feuillage parallax, route du retour) et variantes de timing.
- *
- * Importé par BaseLayout — laissé volontairement vide pour que le build compile.
+ * Garde-fous :
+ *   • Toutes les couches décoratives : position:fixed; inset:0; pointer-events:none;
+ *     z-index:-1 (derrière le contenu, ne capte aucun clic) et bornées au viewport
+ *     (inset/mask, jamais de largeur débordante) → aucun scroll horizontal.
+ *   • prefers-reduced-motion: reduce → motifs figés (animation coupée), toujours discrets.
  */
+
+/* ── Scrim générique du hero : fondu bas teinté par l'accent (toutes ambiances) ── */
+[class*='ambiance-'] .hero__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 28%,
+    color-mix(in srgb, var(--accent) 20%, transparent) 72%,
+    var(--bg) 100%
+  );
+}
+
+/* ── Base commune des couches décoratives fixes ── */
+body[class*='ambiance-']::before,
+body[class*='ambiance-']::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============================================================
+ * 1. ROUTE — rouge Tesla sur noir asphalte : ligne pointillée qui défile
+ * ============================================================ */
+body.ambiance-route .hero__media::after {
+  background: linear-gradient(
+    180deg,
+    rgba(6, 6, 8, 0.35) 0%,
+    transparent 35%,
+    color-mix(in srgb, var(--accent) 26%, transparent) 78%,
+    var(--bg) 100%
+  );
+}
+
+body.ambiance-route::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--accent) 60%, transparent) 0 22px,
+    transparent 22px 62px
+  );
+  background-size: 8px 84px;
+  background-position: 50% 0;
+  background-repeat: no-repeat;
+  opacity: 0.16;
+  animation: route-defile 1.5s linear infinite;
+}
+
+@keyframes route-defile {
+  to {
+    background-position: 50% 84px;
+  }
+}
+
+/* ============================================================
+ * 2. SENS — orange chaleureux : grille de dots (braille) qui respire ;
+ *    les images .reveal passent de flou → net (« reveals à l'aveugle »).
+ * ============================================================ */
+body.ambiance-sens::before {
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--accent) 42%, transparent) 0 2px,
+    transparent 3px
+  );
+  background-size: 42px 42px;
+  opacity: 0.12;
+  animation: sens-onde 9s ease-in-out infinite;
+}
+
+@keyframes sens-onde {
+  0%,
+  100% {
+    background-size: 42px 42px;
+  }
+  50% {
+    background-size: 48px 48px;
+  }
+}
+
+/* Reveal flou→net : natif (on ne change que le nom de la keyframe → timeline/range
+ * hérités de effets.css) */
+@supports (animation-timeline: view()) {
+  body.ambiance-sens .reveal {
+    animation-name: sens-reveal-flou;
+  }
+
+  @keyframes sens-reveal-flou {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+      filter: blur(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
+  }
+}
+
+/* Reveal flou→net : fallback (transition, uniquement sous html.js-reveal) */
+@supports not (animation-timeline: view()) {
+  html.js-reveal body.ambiance-sens .reveal {
+    filter: blur(12px);
+    transition:
+      opacity 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      filter 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    transition-delay: var(--reveal-delai, 0ms);
+  }
+
+  html.js-reveal body.ambiance-sens .reveal.is-visible {
+    filter: blur(0);
+  }
+}
+
+/* ============================================================
+ * 3. FUTUR — cyan électrique : grille néon en perspective + glow sur les titres
+ * ============================================================ */
+body.ambiance-futur::before {
+  background:
+    linear-gradient(color-mix(in srgb, var(--accent) 50%, transparent) 1px, transparent 1px) 0 0 /
+      44px 44px,
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 50%, transparent) 1px, transparent 1px)
+      0 0 / 44px 44px;
+  opacity: 0.07;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 55%, transparent);
+  animation: futur-grille 6s linear infinite;
+}
+
+@keyframes futur-grille {
+  to {
+    background-position:
+      0 44px,
+      44px 0;
+  }
+}
+
+body.ambiance-futur .hero__contenu :is(h1, h2) {
+  text-shadow:
+    0 0 18px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 0 44px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+/* ============================================================
+ * 4. SPACE-AQUA — violet spatial virant bleu profond vers le bas :
+ *    étoiles scintillantes en haut, bulles montantes en bas.
+ * ============================================================ */
+/* Dégradé long sur toute la hauteur du document (non fixe) : le bas de page vire au bleu */
+body.ambiance-space-aqua {
+  background-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    transparent 32%,
+    #0a1533 66%,
+    #10245c 100%
+  );
+}
+
+body.ambiance-space-aqua .hero__media::after {
+  background: linear-gradient(
+    180deg,
+    transparent 25%,
+    color-mix(in srgb, var(--accent) 22%, transparent) 68%,
+    #0a1533 100%
+  );
+}
+
+/* Étoiles (haut de l'écran, masquées vers le bas) */
+body.ambiance-space-aqua::before {
+  background-image:
+    radial-gradient(1.5px 1.5px at 20% 12%, #fff, transparent),
+    radial-gradient(1px 1px at 68% 22%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 85% 8%, #cfe3ff, transparent),
+    radial-gradient(1px 1px at 42% 30%, #fff, transparent),
+    radial-gradient(1px 1px at 12% 40%, #bcd4ff, transparent),
+    radial-gradient(1.5px 1.5px at 55% 6%, #fff, transparent),
+    radial-gradient(1px 1px at 78% 36%, #fff, transparent);
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 45%);
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 45%);
+  animation: aqua-scintille 4.5s ease-in-out infinite;
+}
+
+@keyframes aqua-scintille {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Bulles montantes (bas de l'écran, masquées vers le haut) */
+body.ambiance-space-aqua::after {
+  background-image:
+    radial-gradient(5px 5px at 18% 96%, color-mix(in srgb, #7fd8ff 45%, transparent), transparent 70%),
+    radial-gradient(3px 3px at 44% 92%, color-mix(in srgb, #7fd8ff 40%, transparent), transparent 70%),
+    radial-gradient(4px 4px at 72% 98%, color-mix(in srgb, #7fd8ff 40%, transparent), transparent 70%),
+    radial-gradient(2px 2px at 88% 90%, color-mix(in srgb, #cdefff 45%, transparent), transparent 70%);
+  background-repeat: no-repeat;
+  opacity: 0.5;
+  -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 42%);
+  mask-image: linear-gradient(to top, #000 0%, transparent 42%);
+  animation: aqua-bulles 9s linear infinite;
+}
+
+@keyframes aqua-bulles {
+  to {
+    background-position:
+      0 -70px,
+      0 -110px,
+      0 -85px,
+      0 -130px;
+  }
+}
+
+/* ============================================================
+ * 5. NOCTURNE — magenta : aurora / spectacle nocturne (couches lentes)
+ * ============================================================ */
+body.ambiance-nocturne::before {
+  background:
+    radial-gradient(
+      60% 42% at 30% 0%,
+      color-mix(in srgb, var(--accent) 32%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      52% 40% at 74% 8%,
+      color-mix(in srgb, #8b5cf6 30%, transparent),
+      transparent 70%
+    ),
+    conic-gradient(
+      from 200deg at 50% -8%,
+      transparent,
+      color-mix(in srgb, var(--accent) 22%, transparent),
+      transparent 42%
+    );
+  opacity: 0.5;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 55%);
+  mask-image: linear-gradient(to bottom, #000, transparent 55%);
+  animation: nocturne-aurora 16s ease-in-out infinite alternate;
+}
+
+@keyframes nocturne-aurora {
+  from {
+    transform: translateX(-4%) skewX(-4deg);
+    opacity: 0.35;
+  }
+  to {
+    transform: translateX(4%) skewX(4deg);
+    opacity: 0.55;
+  }
+}
+
+/* ============================================================
+ * 6. SPA — vert sauge + or : vapeur/ondulations très lentes, rythme apaisé
+ * ============================================================ */
+body.ambiance-spa::before {
+  background:
+    radial-gradient(
+      42% 32% at 20% 82%,
+      color-mix(in srgb, var(--accent) 24%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(46% 30% at 82% 92%, color-mix(in srgb, #e5c07b 20%, transparent), transparent 70%);
+  filter: blur(8px);
+  opacity: 0.5;
+  animation: spa-vapeur 24s ease-in-out infinite alternate;
+}
+
+@keyframes spa-vapeur {
+  from {
+    transform: translateY(10px) scale(1);
+  }
+  to {
+    transform: translateY(-16px) scale(1.08);
+  }
+}
+
+/* Rythme apaisé : reveals adoucis/ralentis en fallback (le natif reste spatial). */
+@supports not (animation-timeline: view()) {
+  html.js-reveal body.ambiance-spa .reveal {
+    transition-duration: 1100ms;
+  }
+}
+
+/* ============================================================
+ * 7. JUNGLE — vert : feuillage stylisé en parallax (2 couches, vitesses ≠)
+ * ============================================================ */
+body.ambiance-jungle::before {
+  background-image:
+    radial-gradient(
+      34px 68px at 0% 22%,
+      color-mix(in srgb, var(--accent) 55%, #063d1a),
+      transparent 72%
+    ),
+    radial-gradient(
+      40px 74px at 100% 58%,
+      color-mix(in srgb, var(--accent) 55%, #063d1a),
+      transparent 72%
+    ),
+    radial-gradient(
+      30px 60px at 6% 78%,
+      color-mix(in srgb, var(--accent) 55%, #063d1a),
+      transparent 72%
+    );
+  background-repeat: no-repeat;
+  opacity: 0.1;
+}
+
+body.ambiance-jungle::after {
+  background-image:
+    radial-gradient(
+      26px 54px at 96% 14%,
+      color-mix(in srgb, var(--accent) 45%, #052e15),
+      transparent 72%
+    ),
+    radial-gradient(
+      30px 60px at 2% 46%,
+      color-mix(in srgb, var(--accent) 45%, #052e15),
+      transparent 72%
+    );
+  background-repeat: no-repeat;
+  opacity: 0.08;
+}
+
+@supports (animation-timeline: view()) {
+  body.ambiance-jungle::before {
+    animation: jungle-parallax-lent linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  body.ambiance-jungle::after {
+    animation: jungle-parallax-rapide linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  @keyframes jungle-parallax-lent {
+    to {
+      transform: translateY(-42px);
+    }
+  }
+
+  @keyframes jungle-parallax-rapide {
+    to {
+      transform: translateY(-120px);
+    }
+  }
+}
+
+/* ============================================================
+ * 8. SUNSET — ambre coucher de soleil : bandes chaudes, générique de fin
+ * ============================================================ */
+body.ambiance-sunset .hero__media::after {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 20%, transparent) 0%,
+    transparent 30%,
+    color-mix(in srgb, #f59e0b 24%, transparent) 74%,
+    var(--bg) 100%
+  );
+}
+
+body.ambiance-sunset::before {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 18%, transparent) 0%,
+    color-mix(in srgb, #f59e0b 10%, transparent) 30%,
+    transparent 60%
+  );
+  opacity: 0.6;
+}
+
+body.ambiance-sunset::after {
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 40px,
+    color-mix(in srgb, var(--accent) 10%, transparent) 40px 42px
+  );
+  opacity: 0.3;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 50%);
+  mask-image: linear-gradient(to bottom, #000, transparent 50%);
+}
+
+/* ============================================================
+ * MOUVEMENT RÉDUIT — motifs figés (aucune animation), toujours discrets.
+ * Gagne sur les couches décoratives ci-dessus.
+ * ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  body[class*='ambiance-']::before,
+  body[class*='ambiance-']::after {
+    animation: none !important;
+    transform: none !important;
+  }
+}
