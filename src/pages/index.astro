@@ -4,8 +4,7 @@
  * (tracé d'itinéraire SVG animé au scroll + timeline des 8 jours).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Itineraire from '../components/Itineraire.astro';
-import Timeline from '../components/Timeline.astro';
+import TimelineCard from '../components/TimelineCard.astro';
 import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 
@@ -81,9 +80,59 @@ const jour1 = jours[0];
         </p>
       </div>
 
-      <div class="periple__piste">
-        <Itineraire />
-        <Timeline />
+      {/* Carte sticky à gauche + jours à droite. Chaque jour porte une
+          view-timeline nommée (--jour-N) remontée par timeline-scope :
+          quand un jour traverse le viewport, SON marqueur s'allume sur la
+          carte et la carte du jour « sort » vers la droite. */}
+      <div class="voyage container">
+        <div class="voyage__carte" aria-hidden="true">
+          <div class="carte">
+            <svg
+              class="carte__svg"
+              viewBox="0 0 100 130"
+              preserveAspectRatio="xMidYMid meet"
+              fill="none"
+            >
+              {/* Aller (trait plein) puis retour (pointillé), dessinés au scroll. */}
+              <path
+                class="carte__trace carte__trace--aller"
+                d="M 82 112 C 70 104 64 98 58 92 C 46 80 38 64 34 52 C 31 43 28 38 26 34 C 24 28 28 23 36 25 C 43 27 49 28 47 33 C 45 37 42 38 40 42 C 37 48 40 54 44 62"
+                pathLength="1"
+              />
+              <path
+                class="carte__trace carte__trace--retour"
+                d="M 44 62 C 50 76 58 88 68 96 C 72 100 78 107 82 112"
+                pathLength="1"
+              />
+            </svg>
+
+            <span class="carte__ville carte__ville--lyon">Lyon</span>
+            <span class="carte__ville carte__ville--poitiers">Poitiers</span>
+
+            {
+              jours.map((jour, i) => (
+                <span
+                  class={`marqueur marqueur--${i + 1}${jour.data.ambiance ? ` accent-${jour.data.ambiance}` : ''}`}
+                >
+                  <span class="marqueur__pastille">{jour.data.emoji}</span>
+                  <span class="marqueur__num">J{i + 1}</span>
+                </span>
+              ))
+            }
+          </div>
+        </div>
+
+        <ol class="voyage__jours">
+          {
+            jours.map((jour, i) => (
+              <li
+                class={`etape etape--${i + 1}${jour.data.ambiance ? ` accent-${jour.data.ambiance}` : ''}`}
+              >
+                <TimelineCard entry={jour} />
+              </li>
+            ))
+          }
+        </ol>
       </div>
     </section>
   </main>
@@ -330,7 +379,9 @@ const jour1 = jours[0];
   /* ————————————————————— Périple ————————————————————— */
   .periple {
     position: relative;
-    overflow: hidden;
+    /* `clip` et pas `hidden` : hidden ferait de la section le conteneur de
+     * défilement du sticky de la carte (qui ne collerait plus jamais). */
+    overflow: clip;
     /* Contexte d'empilement : le voile ::before (z-index -1) reste au-dessus
      * du fond opaque du body. */
     isolation: isolate;
@@ -406,8 +457,272 @@ const jour1 = jours[0];
     text-wrap: balance;
   }
 
-  /* Piste : contexte de positionnement pour le tracé absolu + la timeline. */
-  .periple__piste {
+  /* ————————— Voyage : carte sticky + jours ————————— */
+  .voyage {
+    display: grid;
+    grid-template-columns: minmax(17rem, 26rem) 1fr;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    /* PAS d'align-items: start — la colonne de la carte doit s'étirer sur
+     * toute la hauteur de la rangée pour donner sa course au sticky. */
+    /* Remonte les view-timelines des jours (colonne droite) au niveau du
+     * conteneur pour que les marqueurs de la carte (colonne gauche) puissent
+     * s'y abonner. */
+    timeline-scope:
+      --jour-1, --jour-2, --jour-3, --jour-4,
+      --jour-5, --jour-6, --jour-7, --jour-8, --voyage;
+    view-timeline: --voyage block;
+  }
+
+  .voyage__carte {
     position: relative;
+  }
+
+  .carte {
+    position: sticky;
+    top: 6vh;
+    height: 88vh;
+    border-radius: var(--rayon-carte, 20px);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    background:
+      radial-gradient(80% 60% at 30% 25%, rgb(34 211 238 / 0.05), transparent 70%),
+      radial-gradient(70% 50% at 75% 85%, rgb(232 33 39 / 0.05), transparent 70%),
+      repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 12.5%),
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 12.5%),
+      color-mix(in srgb, var(--bg) 88%, #1b2344);
+    overflow: hidden;
+  }
+
+  .carte__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .carte__trace {
+    stroke: color-mix(in srgb, var(--accent) 75%, #ffffff);
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent));
+  }
+
+  .carte__trace--retour {
+    stroke: color-mix(in srgb, #f59e0b 80%, #ffffff);
+    stroke-dasharray: 0.012 0.018;
+    filter: drop-shadow(0 0 6px rgb(245 158 11 / 0.4));
+  }
+
+  .carte__ville {
+    position: absolute;
+    translate: -50% -50%;
+    font-family: var(--font-titres), sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--texte-doux);
+  }
+
+  .carte__ville--lyon { left: 82%; top: 92%; }
+  .carte__ville--poitiers { left: 26%; top: 20.5%; }
+
+  /* ——— Marqueurs d'étape sur la carte ——— */
+  .marqueur {
+    position: absolute;
+    translate: -50% -50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+  }
+
+  .marqueur__pastille {
+    display: grid;
+    place-items: center;
+    width: 2.15rem;
+    height: 2.15rem;
+    font-size: 1rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--bg) 72%, var(--accent));
+    border: 1.5px solid var(--accent);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  .marqueur__num {
+    font-family: var(--font-titres), sans-serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--texte-doux);
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    padding: 0.05rem 0.3rem;
+    border-radius: 99px;
+  }
+
+  /* Positions le long du tracé (repère : viewBox 100 × 130 → %). */
+  .marqueur--1 { left: 58%; top: 70.5%; }
+  .marqueur--2 { left: 34%; top: 40%; }
+  .marqueur--3 { left: 26%; top: 26%; }
+  .marqueur--4 { left: 36%; top: 19%; }
+  .marqueur--5 { left: 47%; top: 25.5%; }
+  .marqueur--6 { left: 40%; top: 32.5%; }
+  .marqueur--7 { left: 44%; top: 47.5%; }
+  .marqueur--8 { left: 68%; top: 74%; }
+
+  /* ——— Colonne des jours ——— */
+  .voyage__jours {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8rem, 26vh, 16rem);
+    padding-block: 4vh 10vh;
+    max-width: 34rem;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  /* Chaque étape publie sa progression de visibilité sous un nom connu. */
+  .etape--1 { view-timeline: --jour-1 block; }
+  .etape--2 { view-timeline: --jour-2 block; }
+  .etape--3 { view-timeline: --jour-3 block; }
+  .etape--4 { view-timeline: --jour-4 block; }
+  .etape--5 { view-timeline: --jour-5 block; }
+  .etape--6 { view-timeline: --jour-6 block; }
+  .etape--7 { view-timeline: --jour-7 block; }
+  .etape--8 { view-timeline: --jour-8 block; }
+
+  /* ——— Animations pilotées par le scroll (navigateurs modernes) ——— */
+  @supports (timeline-scope: --a) and (animation-timeline: view()) {
+    /* Tracé qui se dessine au fil de la section. */
+    .carte__trace--aller {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: carte-tracer linear both;
+      animation-timeline: --voyage;
+      animation-range: cover 2% cover 68%;
+    }
+    .carte__trace--retour {
+      stroke-dashoffset: 1;
+      animation: carte-tracer-retour linear both;
+      animation-timeline: --voyage;
+      animation-range: cover 68% cover 96%;
+    }
+
+    /* Marqueur éteint par défaut… */
+    .marqueur {
+      opacity: 0.38;
+      scale: 0.62;
+      filter: saturate(0.25);
+      animation: marqueur-allume linear both;
+      animation-range: cover 0% cover 100%;
+    }
+    /* …allumé pendant que SON jour traverse le viewport. */
+    .marqueur--1 { animation-timeline: --jour-1; }
+    .marqueur--2 { animation-timeline: --jour-2; }
+    .marqueur--3 { animation-timeline: --jour-3; }
+    .marqueur--4 { animation-timeline: --jour-4; }
+    .marqueur--5 { animation-timeline: --jour-5; }
+    .marqueur--6 { animation-timeline: --jour-6; }
+    .marqueur--7 { animation-timeline: --jour-7; }
+    .marqueur--8 { animation-timeline: --jour-8; }
+
+    /* La carte du jour « sort » de la carte : glissement depuis la gauche. */
+    .etape {
+      animation: etape-sortie linear both;
+      animation-range: entry 0% entry 75%;
+    }
+    .etape--1 { animation-timeline: --jour-1; }
+    .etape--2 { animation-timeline: --jour-2; }
+    .etape--3 { animation-timeline: --jour-3; }
+    .etape--4 { animation-timeline: --jour-4; }
+    .etape--5 { animation-timeline: --jour-5; }
+    .etape--6 { animation-timeline: --jour-6; }
+    .etape--7 { animation-timeline: --jour-7; }
+    .etape--8 { animation-timeline: --jour-8; }
+  }
+
+  @keyframes carte-tracer {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes carte-tracer-retour {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* Plateau : allumé de 18% à 82% de la traversée, éteint aux extrémités. */
+  @keyframes marqueur-allume {
+    0%, 100% {
+      opacity: 0.38;
+      scale: 0.62;
+      filter: saturate(0.25);
+    }
+    18%, 82% {
+      opacity: 1;
+      scale: 1;
+      filter: saturate(1);
+    }
+  }
+
+  @keyframes etape-sortie {
+    from {
+      opacity: 0;
+      translate: -3.5rem 0;
+      scale: 0.94;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+
+  /* ——— Mobile : carte compacte sticky en haut, jours dessous ——— */
+  @media (max-width: 51.99rem) {
+    .voyage {
+      grid-template-columns: 1fr;
+    }
+    .voyage__carte {
+      z-index: 2;
+    }
+    .carte {
+      top: 0.75rem;
+      height: 42svh;
+    }
+    .marqueur__pastille {
+      width: 1.7rem;
+      height: 1.7rem;
+      font-size: 0.8rem;
+    }
+    .voyage__jours {
+      gap: clamp(5rem, 16vh, 9rem);
+      padding-top: 6vh;
+    }
+    @supports (timeline-scope: --a) and (animation-timeline: view()) {
+      @keyframes etape-sortie {
+        from {
+          opacity: 0;
+          translate: 0 2.5rem;
+          scale: 0.96;
+        }
+        to {
+          opacity: 1;
+          translate: 0 0;
+          scale: 1;
+        }
+      }
+    }
+  }
+
+  /* Mouvement réduit : tout est visible et statique. */
+  @media (prefers-reduced-motion: reduce) {
+    .marqueur,
+    .etape,
+    .carte__trace {
+      animation: none !important;
+      opacity: 1 !important;
+      scale: 1 !important;
+      translate: none !important;
+      filter: none !important;
+      stroke-dashoffset: 0 !important;
+    }
   }
 </style>
