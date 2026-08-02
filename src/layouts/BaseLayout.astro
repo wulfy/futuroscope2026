@@ -1,0 +1,87 @@
+---
+/*
+ * BaseLayout.astro — coquille commune : <head> complet (SEO + OpenGraph + Twitter),
+ * polices auto-hébergées (API Fonts), imports CSS (tokens/global/effets/ambiances),
+ * favicon, <slot/>, <Footer/>, et le <script> du fallback reveal.
+ *
+ * Props :
+ *  - title (requis)        → <title> + og:title
+ *  - description (requis)  → meta description + og:description
+ *  - ogImage? (ImageMetadata) → image partagée (optimisée en 1200px, URL absolue)
+ *  - bodyClass? (string)   → classe posée sur <body> (ex. "ambiance-futur")
+ *  - accent? (string)      → injectée en style="--accent: …" sur <body>
+ */
+import { Font, getImage } from 'astro:assets';
+import Footer from '../components/Footer.astro';
+
+import '../styles/tokens.css';
+import '../styles/global.css';
+import '../styles/effets.css';
+import '../styles/ambiances.css';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: ImageMetadata;
+  bodyClass?: string;
+  accent?: string;
+}
+
+const { title, description, ogImage, bodyClass, accent } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+// OG image : optimisée puis résolue en URL absolue (les crawlers exigent une URL complète).
+let ogImageUrl: string | undefined;
+if (ogImage) {
+  const optimized = await getImage({ src: ogImage, width: 1200, format: 'jpg' });
+  ogImageUrl = new URL(optimized.src, Astro.site).href;
+}
+
+const siteNom = 'Souvenirs — Futuroscope & Poitiers';
+const titreComplet = title === siteNom ? title : `${title} · ${siteNom}`;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+
+    <title>{titreComplet}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0a0e1a" />
+
+    {/* Polices auto-hébergées : préload sur les titres (au-dessus de la ligne de flottaison). */}
+    <Font cssVariable="--font-titres" preload />
+    <Font cssVariable="--font-corps" />
+
+    {/* OpenGraph */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteNom} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="fr_FR" />
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+
+    {/* Twitter */}
+    <meta name="twitter:card" content={ogImageUrl ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+  </head>
+
+  <body class={bodyClass} style={accent ? `--accent: ${accent};` : undefined}>
+    <a class="lien-skip" href="#contenu">Aller au contenu</a>
+    <slot />
+    <Footer />
+
+    {/* Fallback reveal pour les navigateurs sans scroll-driven animations. */}
+    <script>
+      import '../scripts/reveal-fallback.ts';
+    </script>
+  </body>
+</html>

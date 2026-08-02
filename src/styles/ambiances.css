@@ -1,0 +1,11 @@
+/*
+ * ambiances.css — STUB (rempli par l'agent « ambiances + effets »).
+ *
+ * Contiendra les 8 ambiances par jour, chacune activée par une classe sur <body>
+ * (ambiance-route | sens | futur | space-aqua | nocturne | spa | jungle | sunset) :
+ * dégradé de fond du hero, motif décoratif en couche fixe (::before/::after :
+ * ligne de route, ondes/braille, grille néon, étoiles+bulles, aurora, vapeur,
+ * feuillage parallax, route du retour) et variantes de timing.
+ *
+ * Importé par BaseLayout — laissé volontairement vide pour que le build compile.
+ */

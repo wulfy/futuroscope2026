@@ -1,0 +1,10 @@
+/*
+ * effets.css — STUB (rempli par l'agent « ambiances + effets »).
+ *
+ * Contiendra : les scroll-driven animations (animation-timeline: view()/scroll()),
+ * la classe utilitaire `.reveal` (reveals décalés au scroll), le hero sticky,
+ * le fallback @supports not (animation-timeline: view()) + IntersectionObserver,
+ * et la neutralisation sous prefers-reduced-motion: reduce.
+ *
+ * Importé par BaseLayout — laissé volontairement vide pour que le build compile.
+ */

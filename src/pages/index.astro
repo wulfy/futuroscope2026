@@ -1,0 +1,20 @@
+---
+// TEMPORAIRE : remplacé par l'agent accueil
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const jours = (await getCollection('jours')).sort((a, b) => a.data.ordre - b.data.ordre);
+---
+
+<BaseLayout
+  title="Souvenirs — Futuroscope & Poitiers"
+  description="Huit jours de vacances, de Lyon à Poitiers : road trip en Tesla, Futuroscope, Aquascope, SPA et Vallée des Singes."
+>
+  <main id="contenu" class="container section">
+    <h1>Souvenirs de vacances</h1>
+    <p>Placeholder d'accueil — la timeline et l'itinéraire animé arrivent bientôt.</p>
+    <ul>
+      {jours.map((j) => <li>{j.data.emoji} {j.data.titre} — {j.data.lieu}</li>)}
+    </ul>
+  </main>
+</BaseLayout>

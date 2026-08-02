@@ -1,0 +1,19 @@
+# Dépendances et sorties de build (réinstallées/régénérées dans l'image)
+node_modules
+dist
+.astro
+
+# Métadonnées de version
+.git
+.gitignore
+
+# Documentation et plan (inutiles au build)
+PLAN.md
+README.md
+
+# Fichiers d'environnement locaux
+.env
+.env.production
+
+# macOS
+.DS_Store

@@ -1,0 +1,75 @@
+---
+/*
+ * 404.astro — page d'erreur stylée dark, lien retour accueil.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page introuvable"
+  description="Cette page du carnet de voyage n'existe pas."
+  accent="#f59e0b"
+>
+  <main id="contenu" class="container erreur">
+    <p class="erreur__code" aria-hidden="true">404</p>
+    <h1 class="erreur__titre">Hors des sentiers battus</h1>
+    <p class="erreur__texte">
+      Cette étape ne figure pas sur notre carte. Elle a peut-être été déplacée,
+      ou n'a jamais existé.
+    </p>
+    <a class="erreur__lien" href="/">← Revenir à l'accueil</a>
+  </main>
+</BaseLayout>
+
+<style>
+  .erreur {
+    min-height: 80svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: var(--esp-sm);
+    padding-block: var(--esp-2xl);
+  }
+
+  .erreur__code {
+    font-family: var(--font-titres), sans-serif;
+    font-size: clamp(5rem, 3rem + 18vw, 14rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    background: linear-gradient(180deg, var(--accent), transparent);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0.85;
+  }
+
+  .erreur__titre {
+    margin-top: calc(-1 * var(--esp-md));
+  }
+
+  .erreur__texte {
+    max-width: 34rem;
+    color: var(--texte-doux);
+  }
+
+  .erreur__lien {
+    margin-top: var(--esp-sm);
+    display: inline-block;
+    padding: var(--esp-2xs) var(--esp-md);
+    border: 1px solid var(--accent);
+    border-radius: var(--rayon-plein);
+    color: var(--accent);
+    font-weight: 600;
+    transition:
+      background var(--transition),
+      color var(--transition);
+  }
+
+  .erreur__lien:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+</style>

@@ -1,0 +1,75 @@
+---
+/*
+ * Footer.astro — inclus par BaseLayout (les pages ne l'importent pas).
+ * Récap sobre du périple : 8 jours, 25 juillet → 1er août, Lyon → Poitiers.
+ */
+const annee = new Date().getFullYear();
+---
+
+<footer class="pied">
+  <div class="container pied__inner">
+    <p class="pied__periple">
+      <span class="pied__lieux">Lyon <span aria-hidden="true">→</span> Poitiers</span>
+      <span class="pied__sep" aria-hidden="true">·</span>
+      <span>8 jours</span>
+      <span class="pied__sep" aria-hidden="true">·</span>
+      <span>25 juillet → 1<sup>er</sup> août 2026</span>
+    </p>
+    <p class="pied__coeur">
+      Fait avec <span class="pied__heart" aria-label="amour" role="img">♥</span> — souvenirs de vacances
+    </p>
+    <p class="pied__copy">© {annee}</p>
+  </div>
+</footer>
+
+<style>
+  .pied {
+    margin-top: var(--esp-2xl);
+    border-top: 1px solid var(--bordure-douce);
+    padding-block: var(--esp-lg);
+    background: linear-gradient(to bottom, transparent, var(--bg-doux));
+  }
+
+  .pied__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--esp-2xs);
+    text-align: center;
+  }
+
+  .pied__periple {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: var(--esp-2xs);
+    font-family: var(--font-titres), sans-serif;
+    font-size: var(--taille-petit);
+    letter-spacing: 0.02em;
+    color: var(--texte-doux);
+  }
+
+  .pied__lieux {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .pied__sep {
+    color: var(--texte-tenu);
+  }
+
+  .pied__coeur {
+    font-size: var(--taille-petit);
+    color: var(--texte-doux);
+  }
+
+  .pied__heart {
+    color: var(--accent);
+  }
+
+  .pied__copy {
+    font-size: var(--taille-petit);
+    color: var(--texte-tenu);
+  }
+</style>
