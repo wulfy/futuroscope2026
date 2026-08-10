@@ -13,6 +13,42 @@ const jours = (await getCollection('jours')).sort(
   (a, b) => a.data.ordre - b.data.ordre,
 );
 const jour1 = jours[0];
+
+/*
+ * Images du rideau du hero : les 8 covers des jours EN PRIORITÉ, complétées
+ * par d'autres photos des pages (galeries) choisies pseudo-aléatoirement —
+ * aucune image n'apparaît deux fois dans le rideau.
+ */
+import type { ImageMetadata } from 'astro:assets';
+
+const tousMedias = import.meta.glob<ImageMetadata>(
+  '/src/assets/medias/**/*.{jpg,jpeg,png,webp,JPG,JPEG}',
+  { eager: true, import: 'default' },
+);
+
+const covers = jours.map((j) => j.data.cover);
+const coverSrcs = new Set(covers.map((c) => c.src));
+
+// Mélange pseudo-aléatoire mais DÉTERMINISTE (hash du chemin) : le rendu
+// varie quand les médias changent, pas à chaque build.
+const hashChemin = (s: string) => {
+  let h = 0;
+  for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return h;
+};
+
+const autresPhotos = Object.entries(tousMedias)
+  .filter(([chemin, img]) => !/\/ambiance-/.test(chemin) && !coverSrcs.has(img.src))
+  .sort(([a], [b]) => hashChemin(a) - hashChemin(b))
+  .map(([, img]) => img);
+
+// 4 colonnes × 4 visuels = 16 images uniques : covers d'abord, le reste en
+// complément. Répartition en tourniquet pour disperser les covers partout.
+const NB_COLONNES = 4;
+const PAR_COLONNE = 4;
+const rideauImages = [...covers, ...autresPhotos].slice(0, NB_COLONNES * PAR_COLONNE);
+const rideauColonnes: ImageMetadata[][] = Array.from({ length: NB_COLONNES }, () => []);
+rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
 ---
 
 <BaseLayout
@@ -23,24 +59,21 @@ const jour1 = jours[0];
   <main id="contenu">
     {/* ——— Hero d'accueil ——— */}
     <header class="hero-accueil">
-      {/* Rideau de photos : colonnes verticales des covers qui défilent
-          lentement (sens alterné), légèrement inclinées, estompées derrière
-          le titre. Chaque colonne est dupliquée pour une boucle sans couture. */}
+      {/* Rideau de photos : colonnes verticales qui défilent lentement (sens
+          alterné), légèrement inclinées, estompées derrière le titre. 16
+          images UNIQUES : les covers des 8 jours en priorité + photos des
+          galeries en complément. Seule la duplication mécanique de chaque
+          colonne (nécessaire à la boucle sans couture) répète un visuel. */}
       <div class="rideau" aria-hidden="true">
         {
-          [
-            [0, 3, 6, 1],
-            [2, 5, 0, 7],
-            [4, 7, 2, 5],
-            [6, 1, 4, 3],
-          ].map((ordre, c) => (
+          rideauColonnes.map((colonne, c) => (
             <div class={`rideau__colonne rideau__colonne--${c + 1}`}>
               <div class="rideau__defile">
-                {[...ordre, ...ordre].map((idx) => (
+                {[...colonne, ...colonne].map((img) => (
                   <div class="rideau__carte">
                     <Image
                       class="rideau__img"
-                      src={jours[idx].data.cover}
+                      src={img}
                       alt=""
                       widths={[360, 540]}
                       sizes="(min-width: 52rem) 16rem, 34vw"
@@ -86,6 +119,26 @@ const jour1 = jours[0];
           quand un jour traverse le viewport, SON marqueur s'allume sur la
           carte et la carte du jour « sort » vers la droite. */}
       <div class="voyage container">
+        {/* Fonds immersifs : la cover du jour lu apparaît en plein écran,
+            très atténuée, avec fondu croisé entre jours voisins — pilotée
+            par la view-timeline du jour (même mécanique que les marqueurs). */}
+        <div class="fonds" aria-hidden="true">
+          {
+            jours.map((jour, i) => (
+              <div class={`fonds__calque fonds__calque--${i + 1}`}>
+                <Image
+                  class="fonds__img"
+                  src={jour.data.cover}
+                  alt=""
+                  widths={[1280, 1920]}
+                  sizes="100vw"
+                  loading="lazy"
+                />
+              </div>
+            ))
+          }
+        </div>
+
         <div class="voyage__carte" aria-hidden="true">
           <div class="carte">
             {/* Vraie carte OSM de la région (Poitiers, Futuroscope au nord,
@@ -403,57 +456,78 @@ const jour1 = jours[0];
     isolation: isolate;
   }
 
-  /* Voyage chromatique : en descendant la timeline, le fond se teinte
-   * successivement de l'accent de chaque jour (rouge route → ambre sunset).
-   * Piloté par la progression de la section dans le viewport, 0 Ko de JS. */
-  /* Typage de --etape : sans @property, une custom property animée saute
-   * d'un keyframe à l'autre au lieu de s'interpoler comme une couleur. */
-  @property --etape {
-    syntax: '<color>';
-    inherits: false;
-    initial-value: #e82127;
+  /* Voyage en images : la cover du jour traversé s'affiche en plein écran
+   * derrière le contenu, très atténuée, avec fondu croisé entre jours
+   * voisins — même mécanique que les marqueurs (view-timeline du jour).
+   * Remplace le voyage chromatique de main. Calques plein viewport en
+   * position fixed, invisibles hors de la plage de leur jour. */
+  /* Le wrapper ne doit PAS occuper de cellule dans la grille .voyage :
+   * display: contents le retire du flux, seuls les calques fixed existent. */
+  .fonds {
+    display: contents;
   }
 
-  @supports (animation-timeline: view()) {
-    .periple::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-      /* La couleur du jour traversé vit dans --etape ; le dégradé la module
-       * (plus dense sur les bords, respiration au centre) pour un rendu
-       * moins « aplat » qu'un simple fond uni. */
-      --etape: #e82127;
-      background:
-        radial-gradient(
-          120% 90% at 50% 50%,
-          color-mix(in srgb, var(--etape) 10%, transparent) 0%,
-          color-mix(in srgb, var(--etape) 26%, transparent) 100%
-        );
-      /* `screen` éclaircit le fond avec la teinte au lieu de la noyer dans le
-       * bleu nuit : chaque étape garde sa vraie couleur (rouge, cyan, vert…). */
-      mix-blend-mode: screen;
-      animation: periple-voyage linear both;
-      animation-timeline: view();
+  .fonds__calque {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .fonds__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Atténuation : sombre et légèrement désaturée pour la lisibilité. */
+    filter: brightness(0.5) saturate(0.9);
+  }
+
+  /* Vignette : renforce la lisibilité au centre (carte + cartes de jours)
+   * et fond les bords haut/bas dans la page. */
+  .fonds__calque::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        90% 90% at 50% 50%,
+        color-mix(in srgb, var(--bg) 55%, transparent) 0%,
+        transparent 60%
+      ),
+      linear-gradient(
+        to bottom,
+        var(--bg) 0%,
+        transparent 22% 78%,
+        var(--bg) 100%
+      );
+  }
+
+  @supports (timeline-scope: --a) and (animation-timeline: view()) {
+    .fonds__calque {
+      animation: fond-plateau linear both;
       animation-range: cover 0% cover 100%;
     }
+    .fonds__calque--1 { animation-timeline: --jour-1; }
+    .fonds__calque--2 { animation-timeline: --jour-2; }
+    .fonds__calque--3 { animation-timeline: --jour-3; }
+    .fonds__calque--4 { animation-timeline: --jour-4; }
+    .fonds__calque--5 { animation-timeline: --jour-5; }
+    .fonds__calque--6 { animation-timeline: --jour-6; }
+    .fonds__calque--7 { animation-timeline: --jour-7; }
+    .fonds__calque--8 { animation-timeline: --jour-8; }
   }
 
-  @keyframes periple-voyage {
-    0%   { --etape: #e82127; }
-    14%  { --etape: #fb923c; }
-    28%  { --etape: #22d3ee; }
-    42%  { --etape: #8b5cf6; }
-    56%  { --etape: #ec4899; }
-    70%  { --etape: #34d399; }
-    84%  { --etape: #22c55e; }
-    100% { --etape: #f59e0b; }
+  /* Plateau : apparition en fondu (0→25%), tenue (25→75%), effacement. */
+  @keyframes fond-plateau {
+    0%, 100% { opacity: 0; }
+    25%, 75% { opacity: 0.34; }
   }
 
+  /* Mouvement réduit : pas de fonds animés du tout. */
   @media (prefers-reduced-motion: reduce) {
-    .periple::before {
-      animation: none !important;
+    .fonds {
+      display: none;
     }
   }
 
