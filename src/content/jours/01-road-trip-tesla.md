@@ -29,6 +29,8 @@ J'arrive vers 10h15 , les enfants sont sur-excités. Ils courent vers la voiture
 Le temps de montrer un peu l'intérieur à la grand-mère, faire les derniers aurevoirs pleins de larmes et on décolle ... pour la pharmacie afin de dire aurevoir à leur mère 😅 (afin qu'elle voit la voiture aussi).
 11h , ca y'est le départ est lancé , en route pour POITIERS !
 
+@video: 06-autoroute.mp4
+
 On quitte Lyon par l'ouest, le soleil dans le dos, la journée entière devant nous — la vidéo de la route est dans la galerie en bas de page, elle se lance toute seule quand elle apparaît.
 
 ## La route

@@ -264,6 +264,21 @@ h3 {
   margin-block: var(--esp-lg);
 }
 
+/* Vidéos inline du récit (paragraphe `@video: nom.mp4` dans le Markdown,
+ * transformé par JourLayout). Même traitement visuel que les images. */
+.prose .recit-video {
+  margin-block: var(--esp-lg);
+  border-radius: var(--rayon-lg);
+  overflow: hidden;
+  box-shadow: var(--ombre-md);
+}
+
+.prose .recit-video video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .prose figure {
   margin-block: var(--esp-lg);
 }
