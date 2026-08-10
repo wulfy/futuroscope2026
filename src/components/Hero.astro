@@ -32,6 +32,11 @@ const dateFmt = new Intl.DateTimeFormat('fr-FR', {
 ---
 
 <section class="hero">
+  <a href="/" class="hero__retour" aria-label="Revenir à l'accueil">
+    <span class="hero__retour-fleche" aria-hidden="true">←</span>
+    <span class="hero__retour-texte">Le périple</span>
+  </a>
+
   <div class="hero__media">
     <Image src={cover} alt={coverAlt} layout="full-width" priority class="hero__img" />
     <div class="hero__voile" aria-hidden="true"></div>
@@ -83,6 +88,91 @@ const dateFmt = new Intl.DateTimeFormat('fr-FR', {
     place-items: end start;
     overflow: hidden;
     isolation: isolate;
+  }
+
+  /*
+   * Lien de retour à l'accueil : posé par-dessus le hero (z-index positif dans
+   * le contexte d'empilement isolé de .hero), donc au-dessus de .hero__media
+   * (z-index -1, y compris son scrim ::after d'ambiance) et de .hero__contenu.
+   * En position absolute (pas fixed) : discret, défile avec le hero sticky.
+   */
+  .hero__retour {
+    position: absolute;
+    top: max(0.9rem, env(safe-area-inset-top));
+    left: max(0.9rem, env(safe-area-inset-left));
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    /* Repliée : cercle ne montrant que la flèche (44px = cible tactile).
+     * Le libellé se déplie au survol/focus (cf. .hero__retour-texte). */
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: flex-start;
+    padding: 0 0.85rem;
+    background: color-mix(in srgb, var(--bg) 55%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: var(--rayon-plein);
+    font-family: var(--font-titres), sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    color: var(--texte-doux);
+    text-decoration: none;
+    transition: border-color var(--transition), color var(--transition);
+  }
+
+  .hero__retour:hover,
+  .hero__retour:focus-visible {
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+    color: var(--accent-texte);
+  }
+
+  .hero__retour:hover .hero__retour-fleche,
+  .hero__retour:focus-visible .hero__retour-fleche {
+    transform: translateX(-2px);
+  }
+
+  .hero__retour:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .hero__retour-fleche {
+    display: inline-block;
+    transition: transform var(--transition);
+  }
+
+  /* Le libellé est replié « derrière » la flèche (largeur nulle, décalé à
+   * gauche, masqué) et glisse en se dépliant au survol/focus. */
+  .hero__retour-texte {
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateX(-0.55rem);
+    transition:
+      max-width 0.35s ease,
+      opacity 0.3s ease,
+      transform 0.35s ease,
+      margin-left 0.35s ease;
+  }
+
+  .hero__retour:hover .hero__retour-texte,
+  .hero__retour:focus-visible .hero__retour-texte {
+    max-width: 7.5rem;
+    opacity: 1;
+    transform: none;
+    margin-left: var(--esp-3xs);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__retour,
+    .hero__retour-fleche,
+    .hero__retour-texte {
+      transition: none;
+    }
   }
 
   .hero__media {
