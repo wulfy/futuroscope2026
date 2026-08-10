@@ -103,7 +103,17 @@ const modif = (i: number): string => {
             </li>
           ) : (
             <li class={`galerie__item galerie__item--video reveal${modif(i)}`}>
-              <video class="galerie__video" controls playsinline preload="metadata">
+              {/* muted + playsinline : requis par les navigateurs pour
+                  l'autoplay (déclenché quand la vidéo est 100% visible,
+                  cf. script en bas). Le son se réactive via les contrôles. */}
+              <video
+                class="galerie__video"
+                controls
+                playsinline
+                muted
+                loop
+                preload="metadata"
+              >
                 <source src={item.url} />
               </video>
               <span class="galerie__badge" aria-hidden="true">▶</span>
@@ -224,3 +234,41 @@ const modif = (i: number): string => {
     pointer-events: none;
   }
 </style>
+
+<script>
+  /*
+   * Autoplay des vidéos de galerie quand elles sont ENTIÈREMENT visibles
+   * (threshold 1), pause dès qu'elles sortent partiellement du viewport.
+   * Vidéos muettes (politique d'autoplay) — le son se réactive via les
+   * contrôles natifs. Désactivé si l'utilisateur préfère moins de mouvement.
+   */
+  const prefereReduit = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefereReduit && 'IntersectionObserver' in window) {
+    const observateur = new IntersectionObserver(
+      (entrees) => {
+        for (const entree of entrees) {
+          const video = entree.target as HTMLVideoElement;
+          /* 0.98 et pas 1 : avec des positions fractionnaires,
+           * intersectionRatio plafonne parfois à 0,99x sans jamais
+           * atteindre exactement 1. */
+          if (entree.intersectionRatio >= 0.98) {
+            video.play().catch(() => {
+              /* autoplay refusé (ex. économie d'énergie) : tant pis. */
+            });
+          } else {
+            /* pause() SANS condition : pendant le buffering, `paused` vaut
+             * encore true alors qu'un play() est en vol — le pause() le
+             * révoque (l'AbortError est absorbé par le catch ci-dessus). */
+            video.pause();
+          }
+        }
+      },
+      { threshold: [0, 0.98] },
+    );
+
+    document
+      .querySelectorAll<HTMLVideoElement>('.galerie__video')
+      .forEach((v) => observateur.observe(v));
+  }
+</script>
