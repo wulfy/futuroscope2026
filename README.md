@@ -79,7 +79,8 @@ Le récit de la journée d'attractions…
 ## Médias (photos & vidéos)
 
 - **Photos** : `.jpg` / `.png` / `.webp`. Optimisées au build en **avif/webp** responsives (plusieurs largeurs, `loading="lazy"`). Déposez la meilleure qualité disponible, Astro se charge du reste.
-- **Vidéos** : `.mp4` / `.webm`, **servies telles quelles** (aucun transcodage au build). Lecture en place, plein écran natif sur mobile.
+- **Vidéos** : `.mp4` / `.webm`, **servies telles quelles** (aucun transcodage au build). Lecture en place, plein écran natif sur mobile. Elles se lancent automatiquement (muettes) quand elles sont entièrement visibles à l'écran, et se mettent en pause en sortant — le son se réactive via les contrôles.
+- **Vidéo dans le récit** : un paragraphe seul `@video: nom-du-fichier.mp4` dans le Markdown insère la vidéo à cet endroit du texte (le fichier doit être dans le dossier médias du jour ; il apparaît aussi dans la galerie). Attention aux `.mov` iPhone (HEVC) : illisibles hors Safari, convertissez d'abord (cf. ci-dessous).
 
 ### Compresser les vidéos avant de les versionner
 

@@ -39,7 +39,50 @@ type Lieu = NonNullable<CollectionEntry<'jours'>['data']['lieux']>[number];
 // --- Rendu du récit en HTML (images inline résolues) via la Container API ---
 const { Content } = await render(entry);
 const container = await experimental_AstroContainer.create();
-const htmlComplet = await container.renderToString(Content);
+const htmlBrut = await container.renderToString(Content);
+
+// --- Vidéos dans le récit : un paragraphe `@video: nom.mp4` dans le Markdown
+// devient une vraie balise <video> pointant sur l'URL hachée du pipeline.
+// La classe `galerie__video` branche l'autoplay-quand-100%-visible du script
+// de MediaGallery (les styles visuels viennent de global.css : .recit-video).
+const videosGlob = import.meta.glob<string>(
+  '/src/assets/medias/**/*.{mp4,webm,MP4,WEBM}',
+  { eager: true, query: '?url', import: 'default' },
+);
+const prefixeMedias = `/src/assets/medias/${entry.id}/`;
+const urlVideo = new Map(
+  Object.entries(videosGlob)
+    .filter(([chemin]) => chemin.startsWith(prefixeMedias))
+    .map(([chemin, url]) => [chemin.slice(prefixeMedias.length), url]),
+);
+
+const htmlAvecVideos = htmlBrut.replace(
+  /<p>\s*@video:\s*([\w.\-]+)\s*<\/p>/g,
+  (_tout, nom: string) => {
+    const url = urlVideo.get(nom);
+    if (!url) return ''; // fichier absent du dossier du jour : marqueur retiré
+    return (
+      `<figure class="recit-video">` +
+      `<video class="galerie__video" controls playsinline muted loop preload="metadata">` +
+      `<source src="${url}"></video></figure>`
+    );
+  },
+);
+
+// --- Images du récit cliquables : chaque <img> de la prose est enveloppée
+// dans un lien compatible PhotoSwipe → agrandissement en popin, dans la même
+// séquence que la galerie du bas (lightbox.ts cible .jour__corps).
+const htmlComplet = htmlAvecVideos.replace(/<img\b[^>]*>/g, (imgTag) => {
+  const src = imgTag.match(/\bsrc="([^"]+)"/)?.[1];
+  const w = imgTag.match(/\bwidth="(\d+)"/)?.[1];
+  const h = imgTag.match(/\bheight="(\d+)"/)?.[1];
+  if (!src || !w || !h) return imgTag; // dimensions inconnues : on ne touche pas
+  return (
+    `<a class="galerie__lien recit-img" href="${src}" ` +
+    `data-pswp-width="${w}" data-pswp-height="${h}" aria-label="Agrandir la photo">` +
+    `${imgTag}</a>`
+  );
+});
 
 // --- Découpage sur les <h2> et correspondance avec lieux[] ---
 const slugifie = (s: string): string =>

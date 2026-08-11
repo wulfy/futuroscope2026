@@ -26,12 +26,14 @@ Le grand jour est arrivé. Après des mois à chercher une tesla et un faux bon 
 ## Départ de Lyon
 
 J'arrive vers 10h15 , les enfants sont sur-excités. Ils courent vers la voiture et posent pleins de questions, ouvrent les portes, regardent l'intérieur, touchent l'écran central ... ils sont super contents.
+![Tablette tesla](../../assets/medias/01-road-trip-tesla/tesla-interieur.jpg)
+
 Le temps de montrer un peu l'intérieur à la grand-mère, faire les derniers aurevoirs pleins de larmes et on décolle ... pour la pharmacie afin de dire aurevoir à leur mère 😅 (afin qu'elle voit la voiture aussi).
 11h , ca y'est le départ est lancé , en route pour POITIERS !
 
-![La route des vacances!](../../assets/medias/01-road-trip-tesla/02-autoroute.jpg)
+@video: 06-autoroute.mp4
 
-On quitte Lyon par l'ouest, le soleil dans le dos, la journée entière devant nous.
+On quitte Lyon par l'ouest, le soleil dans le dos, la journée entière devant nous — la vidéo de la route est dans la galerie en bas de page, elle se lance toute seule quand elle apparaît.
 
 ## La route
 
@@ -48,7 +50,8 @@ Commande passée et on attend de se faire servire quand une alerte du téléphon
 
 En fin d'après-midi, Poitiers apparaît enfin. L'hôtel Mercure nous accueille pour deux nuits, base idéale pour explorer la région. On pose les valises, épuisés mais ravis : le pari de l'électrique est tenu, et l'aventure ne fait que commencer.
 
-L'hotel est une ancienne chapelle de Jésuites édifiée en 1854 ce qui lui donne un cachet incroyable ! 
+L'hotel est une ancienne chapelle de Jésuites édifiée en 1854 ce qui lui donne un cachet incroyable !
+![l'entree de l'hotel](../../assets/medias/01-road-trip-tesla/mercure-entree.jpg) 
 ![l'intérieur de l'hotel](../../assets/medias/01-road-trip-tesla/mercure-interieur.jpg)
 
 Nous n'avons pas une chambre mais 2 ! Elles sont regroupées dans une entrée verrouillée par carte derrière laquelle un escalier nous permet d'accéder aux 2 chambres spacieuses (une pour les enfants et une pour moi). Elles se situent sur les toits avec une vue imprenable sur poitier et la chapelle.

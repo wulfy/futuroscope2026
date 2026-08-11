@@ -256,12 +256,47 @@ h3 {
   border-radius: var(--rayon-sm);
 }
 
-/* Images inline du récit (optimisées par le pipeline Astro → souvent <img> nu). */
+/* Images inline du récit (optimisées par le pipeline Astro → souvent <img> nu).
+ * Hauteur plafonnée à la moitié de l'écran pour garder la page lisible :
+ * l'image garde ses proportions (largeur auto) et se centre. */
 .prose img {
-  width: 100%;
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 50vh;
+  max-height: 50svh;
+  margin-inline: auto;
   border-radius: var(--rayon-lg);
   box-shadow: var(--ombre-md);
   margin-block: var(--esp-lg);
+}
+
+/* Images du récit enveloppées dans un lien d'agrandissement (JourLayout). */
+.prose .recit-img {
+  display: block;
+  cursor: zoom-in;
+}
+
+/* Vidéos inline du récit (paragraphe `@video: nom.mp4` dans le Markdown,
+ * transformé par JourLayout). Même traitement visuel que les images :
+ * hauteur plafonnée à la moitié de l'écran, centrée. */
+.prose .recit-video {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  margin-block: var(--esp-lg);
+  border-radius: var(--rayon-lg);
+  overflow: hidden;
+  box-shadow: var(--ombre-md);
+}
+
+.prose .recit-video video {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 50vh;
+  max-height: 50svh;
 }
 
 .prose figure {
