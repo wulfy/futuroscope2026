@@ -8,7 +8,9 @@
  */
 import type PhotoSwipeLightbox from 'photoswipe/lightbox';
 
-const SEL_GALERIE = '.galerie';
+/* `.jour__corps` et pas `.galerie` : les images du récit (enveloppées par
+ * JourLayout) et la grille du bas forment UNE seule séquence navigable. */
+const SEL_GALERIE = '.jour__corps';
 const SEL_LIEN = '.galerie__lien';
 
 let initPromise: Promise<PhotoSwipeLightbox> | null = null;

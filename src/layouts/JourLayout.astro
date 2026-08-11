@@ -56,7 +56,7 @@ const urlVideo = new Map(
     .map(([chemin, url]) => [chemin.slice(prefixeMedias.length), url]),
 );
 
-const htmlComplet = htmlBrut.replace(
+const htmlAvecVideos = htmlBrut.replace(
   /<p>\s*@video:\s*([\w.\-]+)\s*<\/p>/g,
   (_tout, nom: string) => {
     const url = urlVideo.get(nom);
@@ -68,6 +68,21 @@ const htmlComplet = htmlBrut.replace(
     );
   },
 );
+
+// --- Images du récit cliquables : chaque <img> de la prose est enveloppée
+// dans un lien compatible PhotoSwipe → agrandissement en popin, dans la même
+// séquence que la galerie du bas (lightbox.ts cible .jour__corps).
+const htmlComplet = htmlAvecVideos.replace(/<img\b[^>]*>/g, (imgTag) => {
+  const src = imgTag.match(/\bsrc="([^"]+)"/)?.[1];
+  const w = imgTag.match(/\bwidth="(\d+)"/)?.[1];
+  const h = imgTag.match(/\bheight="(\d+)"/)?.[1];
+  if (!src || !w || !h) return imgTag; // dimensions inconnues : on ne touche pas
+  return (
+    `<a class="galerie__lien recit-img" href="${src}" ` +
+    `data-pswp-width="${w}" data-pswp-height="${h}" aria-label="Agrandir la photo">` +
+    `${imgTag}</a>`
+  );
+});
 
 // --- Découpage sur les <h2> et correspondance avec lieux[] ---
 const slugifie = (s: string): string =>

@@ -11,23 +11,26 @@ ordre: 2
 accent: "#fb923c"
 ambiance: "sens"
 lieux:
-  - titre: "Hôtel Mercure"
-    image: "../../assets/medias/02-sensas-poitiers/ambiance-mercure.jpg"
-    imageAlt: "Le petit-déjeuner à l'hôtel Mercure"
+  - titre: "Poitiers"
+    image: "../../assets/medias/02-sensas-poitiers/poitiers-ambiance.jpg"
+    imageAlt: "Notre dame"
   - titre: "Sensas"
     image: "../../assets/medias/02-sensas-poitiers/ambiance-sensas.jpg"
     imageAlt: "Les couloirs plongés dans le noir de Sensas"
 ---
-Première vraie journée à Poitiers. Au programme : Sensas, un parcours sensoriel où l'on avance privé de la vue, à tâtons, pour redécouvrir le monde par le toucher, l'ouïe, l'odorat et le goût.
+Première vraie journée à Poitiers. Au programme de la matinée : Visite de la ville et son quartier médiéval le matin. L'après midi : Sensas, un parcours sensoriel où l'on avance privé de la vue, à tâtons, pour redécouvrir le monde par le toucher, l'ouïe, l'odorat et le goût.
 
-## Hôtel Mercure
+## Poitiers
 
 La matinée commence tranquillement autour d'un petit-déjeuner généreux. On planifie la journée, un café à la main, encore surpris d'être arrivés la veille par nos propres moyens depuis Lyon.
 
-![Le buffet du matin à l'hôtel](../../assets/medias/02-sensas-poitiers/02-petit-dejeuner.jpg)
+![Le buffet du matin à l'hôtel](../../assets/medias/02-sensas-poitiers/petit-dej-mercure.jpg)
 
 Le temps de flâner un peu dans le centre historique, et l'heure du rendez-vous approche.
-
+![centre historique 1](../../assets/medias/02-sensas-poitiers/poitiers1.jpg)
+![centre historique 1](../../assets/medias/02-sensas-poitiers/poitiers2.jpg)
+![centre historique 1](../../assets/medias/02-sensas-poitiers/poitiers3.jpg)
+![centre historique 1](../../assets/medias/02-sensas-poitiers/poitiers4.jpg)
 ## Sensas
 
 Dès l'entrée, le ton est donné : on nous confie à un guide, on abandonne repères et certitudes. Les salles s'enchaînent dans une obscurité totale, chacune sollicitant un sens différent. On rit, on sursaute, on hésite à poser le pied.
