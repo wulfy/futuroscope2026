@@ -43,6 +43,8 @@ Pas le temps d'un aller-retour, heureusement que les papiers étaient dans un au
 ### Arthur et les minimoys
 ![arthur](../../assets/medias/03-futuroscope/arthur1.jpg)
 ![arthur](../../assets/medias/03-futuroscope/arthur2.jpg)
+![arthur](../../assets/medias/03-futuroscope/arthur3.jpg)
+![arthur](../../assets/medias/03-futuroscope/arthur4.jpg)
 
 ### Etincelle
 Une des attractions vidéos les plus sympa et intéressante : on a appris que la france produisait aussi des BD de supers héros comme les comics dans les années 30 avant leur interdiction vers 1939 (ex: Fantax).
@@ -82,9 +84,11 @@ On dépose les valises et on file au bar des pilotes goûter aux boissons offert
 ### Lapins crétins
 ![lapins cretins](../../assets/medias/03-futuroscope/lapins-cretins.jpg)
 ![lapins cretins](../../assets/medias/03-futuroscope/lapins-cretins2.jpg)
-![lapins cretins](../../assets/medias/03-futuroscope/lapins-cretins3.jpg)
+![lapins cretins](../../assets/medias/03-futuroscope/lapins-cretins0.jpg)
 
 @video: lapins-cretins.mp4
+
+![lapins cretins](../../assets/medias/03-futuroscope/lapins-cretins3.jpg)
 
 
 ### Diner a la table d'Arthur
