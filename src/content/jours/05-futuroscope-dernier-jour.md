@@ -34,4 +34,4 @@ Un dernier tour et on file le soir pour manger une dernière fois à Space Loop
 ![Diner space loop](../../assets/medias/05-futuroscope-dernier-jour/diner-space-loop4.jpg)
 
 On sort du restaurant prêt à partir et là on se regarde et on se dit "une dernière attraction ?".
-Un regard rapide pour voir que Mission Bermudes est ouvert avec moins de 15min de queue ! C'est parti pour cette dernière attraction avant de prendre la route pour la suite de notre voyage : green hotel pour ce soir et le Clos de la Ribaudière les 2 prochains jours.
+Un regard rapide pour voir que Mission Bermudes est ouvert avec moins de 15min de queue ! C'est parti pour cette dernière attraction avant de prendre la route pour la suite de notre voyage : Green Hotel pour ce soir et le Clos de la Ribaudière les 2 prochains jours.
