@@ -22,14 +22,14 @@ On change de camp de base : direction l'hôtel Cosmos, aux portes mêmes du Futu
 
 ## Hôtel Cosmos
 
-L'arrivée à l'hôtel Cosmos donne le ton : couleurs bleues, formes rétro-futuristes, tout ici évoque le voyage spatial. Une station perdue dans une planete de sables.
-![L'exterieur hotel cosmos'](../../assets/medias/03-futuroscope/hotel-cosmos-dehors.jpg)
-![L'exterieur hotel cosmos](../../assets/medias/03-futuroscope/hotel-cosmos-dehors2.jpg)
+L'arrivée à l'hôtel Cosmos donne le ton : couleurs bleues, formes rétro-futuristes, tout ici évoque le voyage spatial. Une station perdue dans une planète de sable.
+![L'extérieur hôtel Cosmos](../../assets/medias/03-futuroscope/hotel-cosmos-dehors.jpg)
+![L'extérieur hôtel Cosmos](../../assets/medias/03-futuroscope/hotel-cosmos-dehors2.jpg)
 
-Pas le temps de traîner, le parc ouvre à 9h30 et il est 9h15. On laisse les affaires dans la voiture car la chambre sera dispo à 15h et on file avec le sac de boissons au parc. Le sac de boissons? Catastrophe! il a été oublié à l'hotel mercure à Poitiers dehors lorsqu'on a tout chargé ! 😱
+Pas le temps de traîner, le parc ouvre à 9h30 et il est 9h15. On laisse les affaires dans la voiture car la chambre sera dispo à 15h et on file avec le sac de boissons au parc. Le sac de boissons ? Catastrophe ! Il a été oublié à l'hôtel Mercure à Poitiers dehors lorsqu'on a tout chargé ! 😱
 Pas le temps d'un aller-retour, heureusement que les papiers étaient dans un autre sac. On file faire la queue pour entrer dans le parc et on démarre les attractions.
 
-![La queue avant d entrer](../../assets/medias/03-futuroscope/queue.jpg)
+![La queue avant d'entrer](../../assets/medias/03-futuroscope/queue.jpg)
 
 ## Le Futuroscope
 
@@ -47,10 +47,10 @@ Pas le temps d'un aller-retour, heureusement que les papiers étaient dans un au
 ![arthur](../../assets/medias/03-futuroscope/arthur4.jpg)
 
 ### Etincelle
-Une des attractions vidéos les plus sympa et intéressante : on a appris que la france produisait aussi des BD de supers héros comme les comics dans les années 30 avant leur interdiction vers 1939 (ex: Fantax).
+Une des attractions vidéos les plus sympas et intéressantes : on a appris que la France produisait aussi des BD de super-héros comme les comics dans les années 30 avant leur interdiction vers 1939 (ex: Fantax).
 ![super heros fr](../../assets/medias/03-futuroscope/supers-heros-fr.jpg)
 
-Etincelle est une héroine inventé par le futuroscope pour leur rendre hommage
+Etincelle est une héroïne inventée par le Futuroscope pour leur rendre hommage
 ![etincelle](../../assets/medias/03-futuroscope/etincelle-attraction.jpg)
 ![etincelle](../../assets/medias/03-futuroscope/etincelle.jpg)
 
@@ -64,8 +64,8 @@ Etincelle est une héroine inventé par le futuroscope pour leur rendre hommage
 ### Vélos sur l'eau
 ![vélos sur l'eau](../../assets/medias/03-futuroscope/velos-eau.jpg)
 
-## De retour à l'hotel
-16h, la chaleur oblige de faire une petite pause à l'hotel.
+## De retour à l'hôtel
+16h, la chaleur oblige à faire une petite pause à l'hôtel.
 La chambre fait penser à un vaisseau spatial et dispose de suffisamment de place pour un équipage de 3 personnes.
 
 ![La chambre thématique de l'hôtel Cosmos](../../assets/medias/03-futuroscope/chambre-cosmos.jpg)
@@ -79,7 +79,7 @@ On dépose les valises et on file au bar des pilotes goûter aux boissons offert
 
 ## Le Futuroscope pour finir
 
-18h, la chaleur redescent on reprend les activités !
+18h, la chaleur redescend, on reprend les activités !
 
 ### Lapins crétins
 ![lapins cretins](../../assets/medias/03-futuroscope/lapins-cretins.jpg)
@@ -91,11 +91,11 @@ On dépose les valises et on file au bar des pilotes goûter aux boissons offert
 ![lapins cretins](../../assets/medias/03-futuroscope/lapins-cretins3.jpg)
 
 
-### Diner a la table d'Arthur
-Repas a volonté pour le plus grand Bonheur de Ruben , même si la qualité n'était pas top.
+### Dîner à la table d'Arthur
+Repas à volonté pour le plus grand bonheur de Ruben, même si la qualité n'était pas top.
 ![restaurant table d'Arthur](../../assets/medias/03-futuroscope/table-arthur.jpg)
 
-### Spectacle de nuit: La clef des songes
+### Spectacle de nuit : La clef des songes
 ![clef des songes](../../assets/medias/03-futuroscope/clef-des-songes.jpg)
 
 @video: clef-des-songes.mp4

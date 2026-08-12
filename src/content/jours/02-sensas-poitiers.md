@@ -13,12 +13,12 @@ ambiance: "sens"
 lieux:
   - titre: "Poitiers"
     image: "../../assets/medias/02-sensas-poitiers/poitiers-ambiance.jpg"
-    imageAlt: "Notre dame la grande"
+    imageAlt: "Notre-Dame-la-Grande"
   - titre: "Sensas"
     image: "../../assets/medias/02-sensas-poitiers/sensas-poitiers-interieur.jpg"
     imageAlt: "Les couloirs plongés dans le noir de Sensas"
 ---
-Première vraie journée à Poitiers. Au programme de la matinée : Visite de la ville et son quartier médiéval le matin. L'après midi : Sensas, un parcours sensoriel où l'on avance privé de la vue, à tâtons, pour redécouvrir le monde par le toucher, l'ouïe, l'odorat et le goût.
+Première vraie journée à Poitiers. Au programme de la matinée : Visite de la ville et son quartier médiéval le matin. L'après-midi : Sensas, un parcours sensoriel où l'on avance privé de la vue, à tâtons, pour redécouvrir le monde par le toucher, l'ouïe, l'odorat et le goût.
 
 ## Poitiers
 
@@ -33,10 +33,10 @@ Le temps de flâner un peu dans le centre historique, et l'heure du rendez-vous 
 ![maison 3 clous](../../assets/medias/02-sensas-poitiers/maison-3-clous.jpg)
 ![pancarte maison 3 clous](../../assets/medias/02-sensas-poitiers/pancarte-maison-3-clous.jpg)
 
-Notre Dame la grande est impressionante
-![notre dame la grande](../../assets/medias/02-sensas-poitiers/notre-dame-la-grande2.jpg)
+Notre-Dame-la-Grande est impressionnante
+![Notre-Dame-la-Grande](../../assets/medias/02-sensas-poitiers/notre-dame-la-grande2.jpg)
 
-Ainsi que le palais des comptes de poitiers qui proposait des ateliers creatifs
+Ainsi que le palais des comtes de Poitiers qui proposait des ateliers créatifs
 ![palais comptes de poitiers](../../assets/medias/02-sensas-poitiers/palais-comptes-poitiers.jpg)
 
 @video: ateliers.mp4

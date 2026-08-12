@@ -19,8 +19,7 @@ const jour1 = jours[0];
  * par d'autres photos des pages (galeries) choisies pseudo-aléatoirement —
  * aucune image n'apparaît deux fois dans le rideau.
  */
-import type { ImageMetadata } from 'astro:assets';
-
+/* `ImageMetadata` est un type global ambiant fourni par astro/client. */
 const tousMedias = import.meta.glob<ImageMetadata>(
   '/src/assets/medias/**/*.{jpg,jpeg,png,webp,JPG,JPEG}',
   { eager: true, import: 'default' },

@@ -3,8 +3,7 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-  // ← placeholder : à remplacer par le domaine définitif avant déploiement.
-  site: 'https://site.example',
+  site: 'https://futuroscope2026.wulfy.eu',
 
   // Récits sans blocs de code → coloration syntaxique désactivée : évite les styles
   // inline de Shiki, incompatibles avec la CSP stricte à base de hashes.
