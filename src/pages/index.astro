@@ -301,13 +301,28 @@ rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
     .rideau {
       gap: 0.75rem;
       justify-content: center;
-      inset: -14% -8%;
+      /* Débord réduit + fondu resserré : les bandes couvrent quasi toute
+       * la hauteur de l'écran dès le départ. */
+      inset: -6% -8%;
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 4%,
+        black 94%,
+        transparent 100%
+      );
     }
     .rideau__colonne--3 {
       display: none;
     }
     .rideau__colonne {
       flex-basis: 40vw;
+    }
+    /* Cartes en portrait : la « bobine » d'une colonne (4 photos + espaces)
+     * devient plus haute que l'écran → aucun vide, ni au départ ni pendant
+     * la boucle (le défilement seamless exige bobine ≥ fenêtre visible). */
+    .rideau__carte {
+      aspect-ratio: 2 / 3;
     }
   }
 
