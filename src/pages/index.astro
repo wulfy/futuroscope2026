@@ -808,17 +808,31 @@ rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
     }
   }
 
-  /* ——— Mobile : carte compacte sticky en haut, jours dessous ——— */
+  /* ——— Mobile : la carte se bloque en haut de l'écran dès qu'elle le
+   * touche et reste visible pendant tout le scroll de la section ; les
+   * jours défilent DERRIÈRE elle (z-index inférieur) et restent cliquables
+   * sur leurs parties non recouvertes. Desktop inchangé. ——— */
   @media (max-width: 51.99rem) {
+    /* En grille 1 colonne, la zone de grille de la carte n'a aucune course
+     * de sticky (elle fait la taille de la carte). En `block`, l'élément
+     * sticky a pour contexte .voyage entier → il colle jusqu'au bout. */
     .voyage {
-      grid-template-columns: 1fr;
+      display: block;
     }
     .voyage__carte {
+      position: sticky;
+      top: 0;
       z-index: 2;
     }
+    /* Le sticky est porté par le wrapper : on neutralise celui de .carte. */
     .carte {
-      top: 0.5rem;
+      position: static;
       width: 100%;
+    }
+    /* Les jours passent sous la carte. */
+    .voyage__jours {
+      position: relative;
+      z-index: 1;
     }
     .marqueur__pastille {
       width: 1.7rem;
