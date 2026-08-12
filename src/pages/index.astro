@@ -294,19 +294,35 @@ rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
     to   { translate: 0 0; }
   }
 
-  /* Mobile : 2 colonnes seulement, calées sur les côtés. */
+  /* Mobile : 3 colonnes qui couvrent toute la largeur (pas de bande vide
+   * entre les photos — le léger débord est rogné par le hero). Le voile
+   * radial assure la lisibilité du titre au centre. */
   @media (max-width: 51.99rem) {
     .rideau {
       gap: 0.75rem;
-      justify-content: space-between;
-      inset: -14% -6%;
+      justify-content: center;
+      /* Débord réduit + fondu resserré : les bandes couvrent quasi toute
+       * la hauteur de l'écran dès le départ. */
+      inset: -6% -8%;
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 4%,
+        black 94%,
+        transparent 100%
+      );
     }
-    .rideau__colonne--2,
     .rideau__colonne--3 {
       display: none;
     }
     .rideau__colonne {
-      flex-basis: clamp(7rem, 34vw, 10rem);
+      flex-basis: 40vw;
+    }
+    /* Cartes en portrait : la « bobine » d'une colonne (4 photos + espaces)
+     * devient plus haute que l'écran → aucun vide, ni au départ ni pendant
+     * la boucle (le défilement seamless exige bobine ≥ fenêtre visible). */
+    .rideau__carte {
+      aspect-ratio: 2 / 3;
     }
   }
 
@@ -808,17 +824,31 @@ rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
     }
   }
 
-  /* ——— Mobile : carte compacte sticky en haut, jours dessous ——— */
+  /* ——— Mobile : la carte se bloque en haut de l'écran dès qu'elle le
+   * touche et reste visible pendant tout le scroll de la section ; les
+   * jours défilent DERRIÈRE elle (z-index inférieur) et restent cliquables
+   * sur leurs parties non recouvertes. Desktop inchangé. ——— */
   @media (max-width: 51.99rem) {
+    /* En grille 1 colonne, la zone de grille de la carte n'a aucune course
+     * de sticky (elle fait la taille de la carte). En `block`, l'élément
+     * sticky a pour contexte .voyage entier → il colle jusqu'au bout. */
     .voyage {
-      grid-template-columns: 1fr;
+      display: block;
     }
     .voyage__carte {
+      position: sticky;
+      top: 0;
       z-index: 2;
     }
+    /* Le sticky est porté par le wrapper : on neutralise celui de .carte. */
     .carte {
-      top: 0.5rem;
+      position: static;
       width: 100%;
+    }
+    /* Les jours passent sous la carte. */
+    .voyage__jours {
+      position: relative;
+      z-index: 1;
     }
     .marqueur__pastille {
       width: 1.7rem;
