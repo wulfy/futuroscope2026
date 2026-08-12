@@ -1,6 +1,6 @@
 ---
 titre: "Dernier jour au Futuroscope"
-sousTitre: "Une ultime tournée, jusqu'au spectacle nocturne"
+sousTitre: "Une ultime tournée, jusqu'au dîner à Space Loop"
 date: 2026-07-29
 lieu: "Chasseneuil-du-Poitou"
 hotel: "Hôtel Cosmos"
@@ -13,12 +13,25 @@ ambiance: "nocturne"
 ---
 Troisième et dernier jour au Futuroscope. On connaît le parc par cœur maintenant, alors on se fait plaisir : les coups de cœur en priorité, sans se presser, avec cette petite pointe de nostalgie de ceux qui savent que ça se termine.
 
-On profite des files plus courtes du matin pour refaire les simulateurs qu'on avait adorés, puis on part à la découverte des recoins qu'on n'avait pas encore explorés. Un dernier tour de manège, une dernière séance sur écran géant, un dernier passage à la boutique pour ramener un souvenir.
+On profite des files plus courtes du matin pour refaire mission to mars, danse avec les robots.
 
-![Une dernière attraction favorite](../../assets/medias/05-futuroscope-dernier-jour/02-attraction.jpg)
+@video: danse-robots.mp4
 
-À mesure que le jour décline, le parc se pare de ses habits de lumière. On garde le meilleur pour la fin : le grand spectacle nocturne, sur le lac, qui mêle projections, lasers et fontaines dans une chorégraphie à couper le souffle. Les couleurs dansent comme une aurore artificielle au-dessus de l'eau.
+Puis on part à la découverte des recoins qu'on n'avait pas encore explorés comme le splash qui fonctionne en toute autonomie : le passager s'installe et ferme la barrière, celui qui attend derrière appuie sur un bouton et le passager n'a plus qu'à tirer une corde 2 fois pour que l'attraction démarre.
 
-![Le spectacle nocturne au bord du lac](../../assets/medias/05-futuroscope-dernier-jour/04-aurora.jpg)
+@video: attraction-splash.mp4
 
-Quand les dernières lumières s'éteignent, on quitte le parc en silence, des étoiles plein les yeux. Trois jours au Futuroscope, et déjà l'envie de revenir. Demain, cap sur la douceur du Clos de la Ribaudière.
+On fait une petite pause pour goûter un saucisson au bœuf autour d'un dernier verre au bar des pilotes
+![Apero midi](../../assets/medias/05-futuroscope-dernier-jour/apero-midi.jpg)
+
+On prend le frais au spectacle de magie où on doit envoyer sa meilleure grimace pour finir sur scène
+![Spectacle magie](../../assets/medias/05-futuroscope-dernier-jour/spectable-magie.jpg)
+
+Un dernier tour et on file le soir pour manger une dernière fois à Space Loop
+![Diner space loop](../../assets/medias/05-futuroscope-dernier-jour/diner-space-loop1.jpg)
+![Diner space loop](../../assets/medias/05-futuroscope-dernier-jour/diner-space-loop2.jpg)
+![Diner space loop](../../assets/medias/05-futuroscope-dernier-jour/diner-space-loop3.jpg)
+![Diner space loop](../../assets/medias/05-futuroscope-dernier-jour/diner-space-loop4.jpg)
+
+On sort du restaurant prêt à partir et là on se regarde et on se dit "une dernière attraction ?".
+Un regard rapide pour voir que Mission Bermudes est ouvert avec moins de 15min de queue ! C'est parti pour cette dernière attraction avant de prendre la route pour la suite de notre voyage : green hotel pour ce soir et le Clos de la Ribaudière les 2 prochains jours.
