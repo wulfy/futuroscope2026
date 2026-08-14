@@ -62,11 +62,19 @@ body.ambiance-route::before {
   background-repeat: no-repeat;
   opacity: 0.16;
   animation: route-defile 1.5s linear infinite;
+  will-change: transform;
 }
 
+/*
+ * translateY et pas background-position : `background-position` n'est pas une
+ * propriété composable, chaque frame forçait un repaint de toute la couche
+ * (fixed, plein viewport), 60 fois par seconde et en permanence. Le motif
+ * étant une tuile unique (`no-repeat`) posée à 50% 0, déplacer l'élément
+ * revient exactement à déplacer le fond.
+ */
 @keyframes route-defile {
   to {
-    background-position: 50% 84px;
+    transform: translateY(84px);
   }
 }
 
@@ -83,15 +91,27 @@ body.ambiance-sens::before {
   background-size: 42px 42px;
   opacity: 0.12;
   animation: sens-onde 9s ease-in-out infinite;
+  /* Origine en haut à gauche = celle du pavage : la mise à l'échelle écarte
+   * alors les points exactement comme le faisait background-size. */
+  transform-origin: 0 0;
+  will-change: transform;
 }
 
+/*
+ * scale et pas background-size : animer la taille du fond re-rasterisait le
+ * radial-gradient sur tout le viewport à chaque frame, en continu — de loin
+ * le plus coûteux des motifs d'ambiance. Le facteur reprend le rapport
+ * d'origine (48 / 42). Seule différence visible : les points grossissent de
+ * 14 % au sommet de la respiration au lieu de garder leur taille, ce qui à
+ * 0,12 d'opacité ne se distingue pas.
+ */
 @keyframes sens-onde {
   0%,
   100% {
-    background-size: 42px 42px;
+    transform: scale(1);
   }
   50% {
-    background-size: 48px 48px;
+    transform: scale(1.143);
   }
 }
 
@@ -147,6 +167,15 @@ body.ambiance-futur::before {
   animation: futur-grille 6s linear infinite;
 }
 
+/*
+ * Laissé en background-position, contrairement à route/sens. Un
+ * translate(44px, 44px) reproduirait pourtant le déplacement au pixel près
+ * (chaque famille de lignes est invariante le long de son propre axe) — mais
+ * il emporterait aussi le `mask-image` ci-dessus, dont le fondu se mettrait à
+ * osciller verticalement. Le masque étant posé sur le même élément que le
+ * fond, il n'y a pas moyen de bouger l'un sans l'autre sans introduire une
+ * vraie balise dans le DOM.
+ */
 @keyframes futur-grille {
   to {
     background-position:
@@ -226,6 +255,12 @@ body.ambiance-space-aqua::after {
   animation: aqua-bulles 9s linear infinite;
 }
 
+/*
+ * Laissé en background-position, comme futur-grille : les quatre bulles
+ * montent à des vitesses différentes (70, 110, 85 et 130px), et un transform
+ * unique sur l'élément les ferait toutes monter d'autant — la parallaxe
+ * disparaîtrait, et le fondu du masque dériverait avec elles.
+ */
 @keyframes aqua-bulles {
   to {
     background-position:

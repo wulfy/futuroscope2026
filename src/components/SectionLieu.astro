@@ -65,11 +65,12 @@ const { lieu, id } = Astro.props;
    * L'image déborde légèrement (110%) pour laisser du jeu au parallax posé par
    * effets.css sur .banniere-lieu__img. Sans effet, le cover reste correct.
    */
+  /* Pas de `will-change` ici : effets.css le pose déjà sur ce sélecteur, en
+   * même temps que la parallaxe qui le justifie. */
   .banniere-lieu__img {
     width: 100%;
     height: 110%;
     object-fit: cover;
-    will-change: transform;
   }
 
   .banniere-lieu__voile {
