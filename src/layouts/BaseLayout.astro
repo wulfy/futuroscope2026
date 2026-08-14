@@ -54,6 +54,11 @@ const titreComplet = title === siteNom ? title : `${title} · ${siteNom}`;
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0a0e1a" />
 
+    {/* Carnet familial : hors des moteurs de recherche. Doublé d'un
+        public/robots.txt — celui-ci seul n'empêche pas l'indexation d'une page
+        atteinte par un lien entrant, seul le noindex la garantit. */}
+    <meta name="robots" content="noindex, nofollow" />
+
     {/* Polices auto-hébergées : préload sur les titres (au-dessus de la ligne de flottaison). */}
     <Font cssVariable="--font-titres" preload />
     <Font cssVariable="--font-corps" />
