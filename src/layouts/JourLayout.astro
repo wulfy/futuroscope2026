@@ -17,9 +17,13 @@
  *    d'origine est alors retiré du flux. Un `<h2>` sans correspondance reste un
  *    titre simple dans la prose. Fonctionne aussi sans `lieux[]` (article d'un bloc).
  */
+import { join } from 'node:path';
+
 import { experimental_AstroContainer } from 'astro/container';
 import { render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
+
+import { dimensionsMp4 } from '../lib/mp4';
 
 import BaseLayout from './BaseLayout.astro';
 import Hero from '../components/Hero.astro';
@@ -50,21 +54,37 @@ const videosGlob = import.meta.glob<string>(
   { eager: true, query: '?url', import: 'default' },
 );
 const prefixeMedias = `/src/assets/medias/${entry.id}/`;
-const urlVideo = new Map(
+const videosDuJour = new Map(
   Object.entries(videosGlob)
     .filter(([chemin]) => chemin.startsWith(prefixeMedias))
-    .map(([chemin, url]) => [chemin.slice(prefixeMedias.length), url]),
+    .map(([chemin, url]) => [
+      chemin.slice(prefixeMedias.length),
+      // Dimensions lues dans le conteneur au build (cf. lib/mp4.ts) : sans
+      // elles le lecteur se rend en 300×150 jusqu'à l'arrivée des métadonnées,
+      // puis saute à son ratio réel — un décalage de plusieurs centaines de
+      // pixels en plein milieu du texte.
+      { url, taille: dimensionsMp4(join(process.cwd(), chemin)) },
+    ]),
 );
+
+// Les vidéos insérées dans le récit sont retirées de la galerie du bas : sans
+// ça le même fichier apparaît deux fois sur la page (deux requêtes, deux
+// éléments observés par le même IntersectionObserver, donc double autoplay).
+const videosDuRecit = new Set<string>();
 
 const htmlAvecVideos = htmlBrut.replace(
   /<p>\s*@video:\s*([\w.\-]+)\s*<\/p>/g,
   (_tout, nom: string) => {
-    const url = urlVideo.get(nom);
-    if (!url) return ''; // fichier absent du dossier du jour : marqueur retiré
+    const video = videosDuJour.get(nom);
+    if (!video) return ''; // fichier absent du dossier du jour : marqueur retiré
+    videosDuRecit.add(nom);
+    const taille = video.taille
+      ? ` width="${video.taille.largeur}" height="${video.taille.hauteur}"`
+      : '';
     return (
       `<figure class="recit-video">` +
-      `<video class="galerie__video" controls playsinline muted loop preload="metadata">` +
-      `<source src="${url}"></video></figure>`
+      `<video class="galerie__video"${taille} controls playsinline muted loop preload="metadata">` +
+      `<source src="${video.url}"></video></figure>`
     );
   },
 );
@@ -72,15 +92,26 @@ const htmlAvecVideos = htmlBrut.replace(
 // --- Images du récit cliquables : chaque <img> de la prose est enveloppée
 // dans un lien compatible PhotoSwipe → agrandissement en popin, dans la même
 // séquence que la galerie du bas (lightbox.ts cible .jour__corps).
+/*
+ * Au passage, on corrige le `sizes`. Astro l'ignore de la largeur réelle
+ * d'affichage et émet « (min-width: 1920px) 1920px, 100vw » : le navigateur
+ * télécharge alors la variante 1280w ou 1920w. Or le CSS plafonne les images
+ * du récit à --largeur-prose (44rem = 704px) ET à 50svh de haut — une photo
+ * portrait s'affiche à ~320px de large. Cadrer le `sizes` sur la colonne de
+ * lecture divise par ~3 le poids des images du récit.
+ */
+const SIZES_PROSE = '(min-width: 46rem) 44rem, 100vw';
+
 const htmlComplet = htmlAvecVideos.replace(/<img\b[^>]*>/g, (imgTag) => {
   const src = imgTag.match(/\bsrc="([^"]+)"/)?.[1];
   const w = imgTag.match(/\bwidth="(\d+)"/)?.[1];
   const h = imgTag.match(/\bheight="(\d+)"/)?.[1];
   if (!src || !w || !h) return imgTag; // dimensions inconnues : on ne touche pas
+  const imgCadree = imgTag.replace(/\bsizes="[^"]*"/, `sizes="${SIZES_PROSE}"`);
   return (
     `<a class="galerie__lien recit-img" href="${src}" ` +
     `data-pswp-width="${w}" data-pswp-height="${h}" aria-label="Agrandir la photo">` +
-    `${imgTag}</a>`
+    `${imgCadree}</a>`
   );
 });
 
@@ -163,7 +194,7 @@ const description = data.sousTitre ?? extrait;
         )}
       </article>
 
-      <MediaGallery id={entry.id} cover={data.cover} />
+      <MediaGallery id={entry.id} cover={data.cover} videosExclues={videosDuRecit} />
 
       <JourNav id={entry.id} />
     </div>

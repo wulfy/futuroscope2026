@@ -7,8 +7,9 @@
  * (lightbox PhotoSwipe, cf. scripts/lightbox.ts).
  * Vidéos : import.meta.glob eager '?url' → <video controls preload=metadata> avec badge ▶.
  *
- * Filtrage : uniquement /medias/<id>/, exclut la cover (comparaison .src) et les
- * fichiers `ambiance-*` (bannières de sections-lieux). Tri par nom de fichier.
+ * Filtrage : uniquement /medias/<id>/, exclut la cover (comparaison .src), les
+ * fichiers `ambiance-*` (bannières de sections-lieux) et les vidéos déjà
+ * insérées dans le récit (prop `videosExclues`). Tri par nom de fichier.
  *
  * Classes CONTRACTUELLES avec l'agent effets : `galerie`, `galerie__item` (+ .reveal).
  */
@@ -17,9 +18,12 @@ import { Picture, getImage } from 'astro:assets';
 interface Props {
   id: string;
   cover: ImageMetadata;
+  /* Noms de fichiers déjà insérés dans le récit (`@video:`) : les afficher
+   * aussi ici doublerait chaque vidéo sur la page. */
+  videosExclues?: ReadonlySet<string>;
 }
 
-const { id, cover } = Astro.props;
+const { id, cover, videosExclues } = Astro.props;
 
 const TAILLE_MAX = 1600;
 
@@ -48,7 +52,8 @@ const photos: ItemPhoto[] = Object.entries(photosGlob)
 
 const videos: ItemVideo[] = Object.entries(videosGlob)
   .filter(([chemin]) => chemin.startsWith(prefixe) && !estAmbiance(chemin))
-  .map(([chemin, url]) => ({ kind: 'video' as const, nom: nomFichier(chemin), url }));
+  .map(([chemin, url]) => ({ kind: 'video' as const, nom: nomFichier(chemin), url }))
+  .filter((v) => !videosExclues?.has(v.nom));
 
 // Tri unifié par nom de fichier (photos et vidéos mélangées, ordre = nom).
 const items: Item[] = [...photos, ...videos].sort((a, b) =>
@@ -90,10 +95,15 @@ const modif = (i: number): string => {
                 data-pswp-height={grandes[i]!.hauteur}
                 aria-label="Agrandir la photo"
               >
+                {/* fallbackFormat webp : sans ça <Picture> ajoute un <img> de
+                    repli dans le format d'origine, soit 788 JPEG et 225 Mo de
+                    dist/ pour les seuls navigateurs qui ne gèrent ni AVIF ni
+                    WebP. Le repli WebP couvre tout ce qui a moins de dix ans. */}
                 <Picture
                   src={item.meta}
                   alt=""
                   formats={['avif', 'webp']}
+                  fallbackFormat="webp"
                   widths={[400, 800, 1600]}
                   sizes="(min-width: 64rem) 25vw, (min-width: 48rem) 33vw, 50vw"
                   loading="lazy"
