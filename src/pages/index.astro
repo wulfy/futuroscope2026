@@ -68,6 +68,10 @@ rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
           rideauColonnes.map((colonne, c) => (
             <div class={`rideau__colonne rideau__colonne--${c + 1}`}>
               <div class="rideau__defile">
+                {/* Décor : `lazy` + `fetchpriority=low` pour ne pas entrer en
+                    concurrence avec le préchargement des polices et le premier
+                    rendu du <h1> — c'est lui le LCP de la page, pas le rideau.
+                    32 vignettes en `eager` retardaient l'un et l'autre. */}
                 {[...colonne, ...colonne].map((img) => (
                   <div class="rideau__carte">
                     <Image
@@ -76,7 +80,8 @@ rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
                       alt=""
                       widths={[360, 540]}
                       sizes="(min-width: 52rem) 16rem, 34vw"
-                      loading="eager"
+                      loading="lazy"
+                      fetchpriority="low"
                     />
                   </div>
                 ))}
@@ -123,15 +128,22 @@ rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
             par la view-timeline du jour (même mécanique que les marqueurs). */}
         <div class="fonds" aria-hidden="true">
           {
+            /* `loading="lazy"` ne diffère RIEN ici : le calque est
+               `position: fixed; inset: 0`, donc il intersecte le viewport dès
+               le premier layout (et `opacity: 0` n'entre pas en compte). Les 8
+               covers partent au chargement de la page. D'où des largeurs
+               modestes : affichées à 0,34 d'opacité derrière une vignette et
+               un brightness(0.5), 960px suffisent largement. */
             jours.map((jour, i) => (
               <div class={`fonds__calque fonds__calque--${i + 1}`}>
                 <Image
                   class="fonds__img"
                   src={jour.data.cover}
                   alt=""
-                  widths={[1280, 1920]}
+                  widths={[640, 960]}
                   sizes="100vw"
                   loading="lazy"
+                  fetchpriority="low"
                 />
               </div>
             ))
@@ -829,6 +841,15 @@ rideauImages.forEach((img, i) => rideauColonnes[i % NB_COLONNES].push(img));
    * jours défilent DERRIÈRE elle (z-index inférieur) et restent cliquables
    * sur leurs parties non recouvertes. Desktop inchangé. ——— */
   @media (max-width: 51.99rem) {
+    /* Les fonds immersifs sont le dispositif le moins visible sur mobile (la
+     * carte sticky occupe le haut de l'écran) et le plus coûteux : 8 calques
+     * fixes plein viewport, donc 8 textures compositeur en mémoire GPU, en
+     * plus du téléchargement. On les coupe — `display: none` empêche au
+     * passage le chargement des images restées en `lazy`. */
+    .fonds {
+      display: none;
+    }
+
     /* En grille 1 colonne, la zone de grille de la carte n'a aucune course
      * de sticky (elle fait la taille de la carte). En `block`, l'élément
      * sticky a pour contexte .voyage entier → il colle jusqu'au bout. */

@@ -16,6 +16,14 @@
  *     obtenues en variant animation-range via nth-child.
  *   • Fallback : `--reveal-delai` (ms) est honoré littéralement via transition-delay.
  *
+ * ─ will-change ─
+ * Réservé aux DEUX grandes images animées en continu pendant leur traversée
+ * (.hero__media img et .banniere-lieu__img). Il a été retiré de .reveal et
+ * .galerie__item : ces sélecteurs couvrent jusqu'à ~50 éléments par page, et
+ * un will-change permanent y promeut autant de couches compositeur qui ne
+ * sont jamais libérées. Avec une timeline `view()`, le navigateur connaît
+ * déjà la plage d'animation et optimise sans qu'on l'y aide.
+ *
  * ─ Garde-fous « toujours scrollable » ─
  *   • Le fallback ne cache un `.reveal` que sous `html.js-reveal` (posée par le JS) :
  *     pas de JS ⇒ rien de caché.
@@ -44,7 +52,6 @@
      * animation-timeline à auto). */
     animation-timeline: view();
     animation-range: entry 0% entry 55%;
-    will-change: opacity, transform;
   }
 
   @keyframes reveal-entree {
@@ -99,7 +106,6 @@
     animation: galerie-entree linear both;
     animation-timeline: view();
     animation-range: entry 0% entry 45%;
-    will-change: opacity, transform;
   }
 
   .galerie__item:nth-child(3n + 2) {
@@ -131,7 +137,6 @@
       opacity 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
       transform 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
     transition-delay: var(--reveal-delai, 0ms);
-    will-change: opacity, transform;
   }
 
   html.js-reveal .reveal.is-visible {
