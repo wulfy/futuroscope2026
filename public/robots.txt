@@ -1,0 +1,6 @@
+# Carnet de voyage familial : rien ne doit être indexé.
+# Le robots.txt seul ne suffit pas (une page atteinte par un lien entrant peut
+# être indexée sans être explorée) — chaque page porte aussi un
+# <meta name="robots" content="noindex, nofollow"> posé par BaseLayout.astro.
+User-agent: *
+Disallow: /

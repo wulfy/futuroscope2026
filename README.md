@@ -106,15 +106,13 @@ git lfs track "*.mp4" "*.webm"
 git add .gitattributes
 ```
 
-### Régénérer les médias de démonstration
+### Élagage des originaux au build
 
-Le dépôt est livré avec des **placeholders générés** (dégradés aux couleurs de chaque ambiance + un mini-clip vidéo) pour valider le circuit sans vrais médias :
+`npm run build` enchaîne `astro build` puis `scripts/elaguer-originaux.mjs`.
 
-```bash
-npm run medias:demo
-```
+Tout import d'image depuis `src/assets` fait émettre par Astro/Vite une **copie conforme du fichier source** dans `dist/_astro` — c'est la cible de `ImageMetadata.src`, produite qu'on l'affiche ou non. Les pages, elles, ne référencent que les variantes optimisées. Sans élagage, 161 photos pleine résolution (~68 Mo, métadonnées comprises) seraient publiées à des URL stables sans qu'aucune page n'y renvoie.
 
-Remplacez-les au fur et à mesure par vos vraies photos/vidéos.
+Le script ne supprime un fichier que s'il est **à la fois** absent de tout fichier texte de `dist/` **et** identique octet pour octet à un média source.
 
 ---
 
